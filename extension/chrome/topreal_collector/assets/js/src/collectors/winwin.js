@@ -730,6 +730,13 @@ function WinWin(){
                 }
             });
         }
+        else if (this.pth[2] == "ComForSale"){
+            $('#savedAddsTable>tbody>tr').each(function(){
+                if ($(this).is(":visible") && $(this).attr("id") != undefined){
+                    ids_arr.push([$(this).attr("id").replace(/\D/g, ""), $('#'+$(this).attr("id")+'>td:nth-child(9)').text().trim().replace(/\D/g, "")]);
+                }
+            });
+        }
         
         $.post(host+"/api/buildertmp/getexist.json", {
             ids: JSON.stringify(ids_arr),
