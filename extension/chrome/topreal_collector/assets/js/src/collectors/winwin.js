@@ -134,14 +134,21 @@ function WinWin(){
         }
         
         if (isSale){
-            values.ascription = "sale";
+            values.ascription = "sale"; // למכירה
         }
         else{
-            values.ascription = "rent";
+            values.ascription = "rent"; // להשכרה
         }
-
+        
         values.country = "ישראל";
-        values.city = $('.adHeaderNew').text().split(" - ")[1].replace(/\d/g, "").replace("חדרים", "").trim();
+        
+        if ($('.adHeaderNew').text().indexOf("-") === -1){
+            values.city = values.ascription === "sale" ? $('.adHeaderNew').text().split("למכירה")[1].trim() : $('.adHeaderNew').text().split("להשכרה")[1].trim();
+        }
+        else{
+            values.city = $('.adHeaderNew').text().split(" - ")[1].replace(/\d/g, "").replace("חדרים", "").trim();
+        }
+        
         values.neighborhood = this.TryParseFrameValue(frameElem, "שכונה:");
         values.street = "";
         value = this.TryParseFrameValue(frameElem, "רחוב:");
@@ -283,8 +290,8 @@ function WinWin(){
         
         var tmp = {};
         
-        for (var key in values){
-            if (values[key] != null){
+        for (var key in values){ // очистка
+            if (values[key] != null && values[key] != "-" && values[key] != ""){
                 tmp[key] = values[key];
             }
         }
@@ -485,7 +492,7 @@ function WinWin(){
         var tmp = {};
         
         for (var key in values){
-            if (values[key] != null){
+            if (values[key] != null && values[key] != "-" && values[key] != ""){
                 tmp[key] = values[key];
             }
         }

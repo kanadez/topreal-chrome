@@ -26,7 +26,7 @@ function Collector(){
     this.createProperty = function(data){
         $('#try_collector_button, .ui-dialog-titlebar-close').attr("disabled", true);
         $('#try_collector_button').text(localization.getVariable("pls_wait"));
-
+        
         $.post(host+"/api/buildertmp/createproperty.json",{
             data: JSON.stringify(data)
         },function (response){
@@ -36,7 +36,7 @@ function Collector(){
             if (response.error != undefined){
                 if (response.error.code == 405){
                     var obj = JSON.parse(response.error.description);
-                    console.log(obj);
+                    //console.log(obj);
                     $('#existing_card_collect_date_span').html(utils.convertTimestampToDate(obj.date));
                     $('#existing_card_price_span').html(utils.numberWithCommas(obj.price));
                     $('#existing_card_collect_address_span').html(obj.address);
