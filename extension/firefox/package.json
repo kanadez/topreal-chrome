@@ -1,0 +1,15 @@
+{
+  "title": "TopReal Collector Builder",
+  "name": "topreal_collector_builder",
+  "version": "0.0.1",
+  "description": "AN extension for building colectors for topreal.top",
+  "main": "index.js",
+  "author": "Kanadez",
+  "engines": {
+    "firefox": ">=38.0a1"
+  },
+  "license": "MIT",
+  "keywords": [
+    "topreal_collector_builder"
+  ]
+}
