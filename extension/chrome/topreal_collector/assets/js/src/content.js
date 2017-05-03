@@ -1,5 +1,5 @@
 // код, выполняемый на каждой отедльной веб-странице
-var test_mode = 1;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
+var test_mode = 0;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
 var host = null;
 var localization = new Localization();
 var utils = new Utils();
@@ -12,21 +12,23 @@ var locale = null;
 //$('head').append("<script type='text/javascript' src='//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'>");
 //var host = null;
 
-if (collector.current.onAdsPage()){ // если НА странице обявления Яд2
-    toggleExtension();
-    select_mode = 0;
-}
-else if (collector.current.onCatalogPage()){ // если НА странице каталога Яд2
-    toggleExtension();
-}
-
-chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
-    if (request.action == "toggle"){
+if (collector.current !== null){ // если хотя бы один из коллекторов активизировался
+    if (collector.current.onAdsPage()){ // если НА странице обявления Яд2
+        toggleExtension();
+        select_mode = 0;
+    }
+    else if (collector.current.onCatalogPage()){ // если НА странице каталога Яд2
         toggleExtension();
     }
-    
-    sendResponse({});
-});
+
+    chrome.extension.onMessage.addListener(function (request, sender, sendResponse) {
+        if (request.action == "toggle"){
+            toggleExtension();
+        }
+
+        sendResponse({});
+    });
+}
 
 function toggleExtension(){
     if (turned_on === 1){

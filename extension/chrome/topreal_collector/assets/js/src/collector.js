@@ -10,8 +10,6 @@ function Collector(){
         break;
     }
     
-    console.log(this.current);
-    
     this.checkSession = function(){
         $.post(host+"/api/buildertmp/checksession.json", {}, function (response){
             if (response){
