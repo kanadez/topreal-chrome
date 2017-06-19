@@ -244,7 +244,8 @@ class BuilderTmp{
                 "lot_dims" => 5, 
                 //"country" => "ChIJi8mnMiRJABURuiw1EyBCa2o", 
                 "timestamp" => time(), 
-                "statuses" => 0
+                "statuses" => 0,
+                "collected" => 1
             ]); 
             
             foreach ($decoded as $key => $val){ // перебираем поля недвижимости 
