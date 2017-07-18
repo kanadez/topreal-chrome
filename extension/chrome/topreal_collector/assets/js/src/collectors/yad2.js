@@ -382,9 +382,9 @@ function Yad2(){
 
         /*for (var key in values){
             $('#collector_result_div').append("<br>"+key+": "+values[key]);
-        }*/
+        }
         
-        //collector.showPreview();
+        collector.showPreview();*/
         collector.createProperty(values);
     };
     
@@ -621,6 +621,7 @@ function Yad2(){
                     parent_tr.attr("iframe_url", ad_url);
                     $('#'+parent_tr.attr("id")+"+tr").remove();
                     $('#'+parent_tr.attr("id")).children().css("background", "rgba(255,0,0,0.63)");
+                    $('#'+parent_tr.attr("id")+' + tr').children().children().children().children('iframe').css("min-height", "653px");
                 }
                 
                 return 0;
@@ -631,14 +632,19 @@ function Yad2(){
             if (parent_tr.attr("iframe_url") == undefined){
                 ad_url = $('#'+parent_tr.attr("id")+' + tr').children().children().children().children('iframe').attr('src');
                 parent_tr.attr("iframe_url", ad_url);
-                $('#'+parent_tr.attr("id")+"+tr").remove();
+                $('tr.Info').hide();
+                $('#'+parent_tr.attr("id")+"+tr").show();
                 $('#'+parent_tr.attr("id")).children().css("background", "rgba(255,0,0,0.63)");
+                $('#'+parent_tr.attr("id")+' + tr').children().children().children().children('iframe').css("min-height", "653px");
             }
             else{
                 ad_url = parent_tr.attr("iframe_url");
+                $('tr.Info').hide();
+                $('#'+parent_tr.attr("id")+"+tr").show();
+                $('#'+parent_tr.attr("id")+' + tr').children().children().children().children('iframe').css("min-height", "653px");
             }
             
-            chrome.runtime.sendMessage({action: "open_yad2_newad", url: location.origin+ad_url});
+            //chrome.runtime.sendMessage({action: "open_yad2_newad", url: location.origin+ad_url});
         }
     };
     
@@ -675,5 +681,9 @@ function Yad2(){
                 }
             }
         });
+    };
+    
+    this.onCreatePropertySuccess = function(response){
+        chrome.runtime.sendMessage({action: "open_yad2_newad", url: host+"/property?id="+response+"&mode=collected"});
     };
 }

@@ -763,4 +763,8 @@ function WinWin(){
             }
         });
     };
+    
+    this.onCreatePropertySuccess = function(response){
+        location.href = host+"/property?id="+response+"&mode=collected";
+    };
 }

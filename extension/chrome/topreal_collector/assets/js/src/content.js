@@ -1,5 +1,5 @@
 // код, выполняемый на каждой отедльной веб-странице
-var test_mode = 1;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
+var test_mode = 0;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
 var host = null;
 var localization = new Localization();
 var utils = new Utils();
@@ -59,7 +59,7 @@ function startExtension(){
             width: 300,
             height: 270,
             dialogClass: 'buttons_dialog',
-            position: { my: "left top", at: "left top", of: window },
+            position: { my: "left top+50", at: "left top+50", of: window },
             beforeClose: function( event, ui ) {
                 $('#buttons_div').hide();
             }

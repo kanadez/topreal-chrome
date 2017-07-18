@@ -80,9 +80,7 @@ function Collector(){
                 }
             }
             else{
-                //console.log(response)
-                //chrome.runtime.sendMessage({action: "open_topreal_tab", url: host+"/property?id="+response+"&mode=collected"});
-                location.href = host+"/property?id="+response+"&mode=collected";
+                collector.current.onCreatePropertySuccess(response);
             }
         });
     };
