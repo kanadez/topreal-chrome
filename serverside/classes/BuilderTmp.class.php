@@ -1052,7 +1052,9 @@ class BuilderTmp{
     }
     
     public function checkSession(){
-        if (isset($_SESSION["user"])){
+        $permission = new Permission();
+        
+        if (isset($_SESSION["user"]) && $permission->is("use_data_collecting")){
             return true;
         }
         else{
