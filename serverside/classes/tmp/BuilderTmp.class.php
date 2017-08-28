@@ -253,7 +253,7 @@ class BuilderTmp{
                     case "country":
                         $parsed = str_replace('"', "", $this->getPlaceIdByAddress($val));
 
-                        if ($parsed != null && $parsed != "null"){
+                        if ($parsed != null){
                             $property->country = $parsed;
                             $property->country_text = Geo::getFullAddress($property->country);
                         }
@@ -268,7 +268,7 @@ class BuilderTmp{
                         else{ 
                             $parsed = str_replace('"', "", $this->getPlaceIdByAddress($val." ".$decoded["country"]));
 
-                            if ($parsed != null && $parsed != "null"){
+                            if ($parsed != null){
                                 $property->city = $parsed;
                                 $property->city_text = Geo::getFullAddress($property->city);
                             }
@@ -282,7 +282,7 @@ class BuilderTmp{
                         if (strlen($val) > 0){
                             $parsed = str_replace('"', "", $this->getPlaceIdByAddress($val." ".$decoded["city"]." ".$decoded["country"]));
 
-                            if ($parsed != null && $parsed != "null"){
+                            if ($parsed != null){
                                 $property->neighborhood = $parsed;
                                 $property->neighborhood_text = Geo::getFullAddress($property->neighborhood);
                             }
@@ -296,7 +296,7 @@ class BuilderTmp{
                         if (strlen($val) > 0){
                             $parsed = str_replace('"', "", $this->getPlaceIdByAddress($val." ".$decoded["city"]." ".$decoded["country"]));
 
-                            if ($parsed != null && $parsed != "null" && $parsed != $property->city){
+                            if ($parsed != null && $parsed != $property->city){
                                 $property->street = $parsed;
                                 $latlng = Geo::getTrueLocation($property->street, $decoded["house_number"], $decoded["statuses"]);
                                 $property->lat = $latlng["lat"];
@@ -1052,9 +1052,7 @@ class BuilderTmp{
     }
     
     public function checkSession(){
-        $permission = new Permission();
-        
-        if (isset($_SESSION["user"]) && $permission->is("use_data_collecting")){
+        if (isset($_SESSION["user"])){
             return true;
         }
         else{
