@@ -34,6 +34,7 @@
         "http://dev.topreal.top/*",
         "tabs",
         "activeTab",
+        "cookies",
         "http://*/",
         "https://*/"
     ],
