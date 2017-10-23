@@ -16,7 +16,17 @@ function Collector(){
                 collector.current.collectData();
             }
             else{
-                alert(localization.getVariable("collector_msg1"));
+                //alert(localization.getVariable("collector_msg1"));
+                $('.ui-dialog[aria-describedby=not_auth_dialog]').show();
+                $('#not_auth_dialog').show().dialog({
+                    width: 350,
+                    height: 230,
+                    dialogClass: 'buttons_dialog',
+                    position: { my: "center", at: "center", of: window },
+                    beforeClose: function( event, ui ) {
+                        $('#not_auth_dialog').hide();
+                    }
+                });
             }
         });
     };
