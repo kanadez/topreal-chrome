@@ -1,6 +1,6 @@
 // код, выполняемый на каждой отедльной веб-странице
 var test_mode = 0;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
-var host = null;
+var host = test_mode === 1 ? "http://dev.topreal.top" : "https://topreal.top";
 var localization = new Localization();
 var utils = new Utils();
 var collector = new Collector(); // здесь нуно будет вставлять номер коллектора зависимо от выбранного юзером. пока фиксированно
@@ -35,13 +35,16 @@ function toggleExtension(){
         stopExtension();
     }
     else{
-        startExtension();
+        $.post(host+"/api/buildertmp/checksession.json", {}, function (response){
+            if (response == true){
+                startExtension();
+            }
+        });
     }
 }
 
 function startExtension(){ 
     turned_on = 1;
-    host = test_mode === 1 ? "http://dev.topreal.top" : "https://topreal.top";
     
     //if (location.pathname !== "/Nadlan/salesDetails.php" && location.pathname !== "/Nadlan/rentDetails.php" && location.pathname !== "/Nadlan/businessDetails.php"){ //если НЕ на странице обявления Яд2
         //$(collector.getElementByXPath("HTML/BODY/DIV[7]")).remove();
@@ -113,6 +116,10 @@ function startExtension(){
             <br><p></p><button locale="exit" style="float:right;margin-left:10px;" id="close_existing_card_button">Выход</button>\n\
             <button locale="update_card" style="float:right;display:none;" id="update_existing_card_button">Обновить карточку</button>\n\
         </div>\n\
+        <div id="not_auth_dialog" locale_title="warning_h4" title="Внимание" style="display:none;background:red;">\n\
+            <span id="not_auth_error_span" locale="collector_msg1">Вы не авторизовались на topreal.top. Это необходимо для сбора данных.</span>\n\
+            <p></p><button style="float:right;margin-left:10px;" id="close_not_auth_dialog_button">OK</button>\n\
+        </div>\n\
         <div id="card_exist_ext_dialog" locale_title="warning_h4" title="Внимание" style="display:none;">\n\
             <span id="ext_card_already_exist_error_span" style="display:none;" locale="card_already_exist_error">Что-то пошло не так. Обновите страницу и попробуйте заново.</span>\n\
             <span id="ext_card_already_exist_success_span" style="display:none;" locale="ext_card_already_exist_success">Карточка успешно обновлена. Нажмите "OK".</span>\n\
@@ -167,6 +174,10 @@ function startExtension(){
     
     $('#close_existing_card_ext_button').click(function(){
         $('.ui-dialog[aria-describedby=card_exist_ext_dialog]').hide();
+    });
+    
+    $('#close_not_auth_dialog_button').click(function(){
+        $('.ui-dialog[aria-describedby=not_auth_dialog]').hide();
     });
 
     $('#try_collector_button').click(function(){
