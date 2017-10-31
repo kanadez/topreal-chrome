@@ -169,7 +169,8 @@ function startExtension(){
         //chrome.tabs.getCurrent(function(tab) {
         //        console.log(tab);//chrome.tabs.remove(tab.id, function() { });
         //    });
-        chrome.runtime.sendMessage({action: "close_current_tab"});
+        //chrome.runtime.sendMessage({action: "close_current_tab"});
+        $('.ui-dialog[aria-describedby=card_exist_dialog]').hide();
     });
     
     $('#close_existing_card_ext_button').click(function(){
