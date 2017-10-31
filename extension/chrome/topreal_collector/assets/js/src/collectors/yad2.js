@@ -1,6 +1,7 @@
 function Yad2(){
     this.onAdsPage = function(){
         if (location.origin === "http://www.yad2.co.il" && (location.pathname === "/Nadlan/salesDetails.php" || location.pathname === "/Nadlan/rentDetails.php" || location.pathname === "/Nadlan/businessDetails.php")){
+            chrome.runtime.sendMessage({action: "remove_yad2_cookies"});
             return true;
         }
         else{
@@ -55,6 +56,7 @@ function Yad2(){
         }
 
         var values = {};
+        values["yad2_subcat_id"] = utils.getUrlParameter("SubCatID");
         values["remarks_text"] = "";
         values["collector_suffix"] = "hex";
 

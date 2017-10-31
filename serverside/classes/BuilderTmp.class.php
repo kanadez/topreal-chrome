@@ -249,7 +249,12 @@ class BuilderTmp{
             ]); 
             
             foreach ($decoded as $key => $val){ // перебираем поля недвижимости 
-                switch ($key) {
+                switch ($key){
+                    case "yad2_subcat_id":
+                        if (strlen($val) > 0){
+                            $property->yad2_subcat_id = $val;
+                        }
+                    break;
                     case "country":
                         $parsed = str_replace('"', "", $this->getPlaceIdByAddress($val));
 
