@@ -1057,9 +1057,16 @@ class BuilderTmp{
     }
     
     public function checkSession(){
+        global $user;
+        
         $permission = new Permission();
         
-        if (isset($_SESSION["user"]) && $permission->is("use_data_collecting")){
+        if (
+                isset($_SESSION["user"]) && 
+                $permission->is("use_data_collecting") &&
+                $user->notSeenTooLong($_SESSION["user"]) == 0
+            )
+        {
             return true;
         }
         else{
