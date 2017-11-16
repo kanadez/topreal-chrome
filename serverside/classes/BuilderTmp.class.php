@@ -193,7 +193,7 @@ class BuilderTmp{
     }
     
     public function createProperty($json_data){
-        global $property_form_data, $currency, $agency;
+        global $property_form_data, $currency, $agency, $googleac;
         $decoded = json_decode($json_data, true);
         $user = $_SESSION["user"];
         $suffix = $decoded["collector_suffix"];
@@ -290,6 +290,7 @@ class BuilderTmp{
                             if ($parsed != null && $parsed != "null"){
                                 $property->neighborhood = $parsed;
                                 $property->neighborhood_text = Geo::getFullAddress($property->neighborhood);
+                                $googleac->ajaxAddShort($parsed);
                             }
                             else{
                                 $property->remarks_text .= " ".$key.": ".$val.", ";
@@ -307,6 +308,7 @@ class BuilderTmp{
                                 $property->lat = $latlng["lat"];
                                 $property->lng = $latlng["lng"];
                                 $property->street_text = Geo::getFullAddress($property->street);
+                                $googleac->ajaxAddShort($parsed);
                             }
                             else{
                                 $property->remarks_text .= " ".$key.": ".$val.", ";
