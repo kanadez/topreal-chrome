@@ -27,6 +27,15 @@ function Yad2(){
         }
     };
     
+    this.onSearchPage = function(){
+        if (utils.stringContains(location.search, "multiSearch")){
+            return true;
+        }
+        else{
+            return false;
+        }
+    };
+    
     this.collectData = function(){
         var frameElem = $(document).children().html();
         var isSale = true;
@@ -550,7 +559,18 @@ function Yad2(){
     };
     
     this.afterLoad = function(){
-       
+       if (this.onSearchPage()){
+           $('\
+                #search_form,\n\
+                #menu_strip,\n\
+                #menu,\n\
+                .intro_block,\n\
+                #lastsearch_block,\n\
+                .search_banners,\n\
+                .platinum,\n\
+                #Hotpics\n\
+            ').remove();
+       }
     };
     
     this.advStyle = function(){
@@ -687,5 +707,6 @@ function Yad2(){
     
     this.onCreatePropertySuccess = function(response){
         chrome.runtime.sendMessage({action: "open_yad2_newad", url: host+"/property?id="+response+"&mode=collected"});
+        chrome.runtime.sendMessage({action: "close_current_tab"});
     };
 }

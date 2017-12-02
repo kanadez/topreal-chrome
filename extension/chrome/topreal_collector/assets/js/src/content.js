@@ -31,13 +31,21 @@ if (collector.current !== null){ // если хотя бы один из кол�
 }
 
 function toggleExtension(){
+    if (collector.current.onSearchPage()){
+        chrome.runtime.sendMessage({action: "unset_was_opened"});
+    }
+    
     if (turned_on === 1){
         stopExtension();
     }
     else{
         $.post(host+"/api/buildertmp/checksession.json", {}, function (response){
             if (response == true){
-                startExtension();
+                chrome.runtime.sendMessage({action: "check_was_opened"}, function(response){
+                    if (!response){
+                        startExtension();
+                    }
+                });
             }
         });
     }

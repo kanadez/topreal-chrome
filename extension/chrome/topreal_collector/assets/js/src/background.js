@@ -1,4 +1,6 @@
- // фоновый скрипт, на котором проихсходит прием данных от content.js
+var was_opened = true; // тумблер, по которому проверка на открытие экстеншна больше одного раза
+
+// фоновый скрипт, на котором проихсходит прием данных от content.js
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {    
     switch (request.action) {
         case "open_yad2_newad":
@@ -7,9 +9,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         break;
         case "close_current_tab":
            chrome.tabs.remove(sender.tab.id, null);
+           was_opened = true;
         break;
         case "remove_yad2_cookies":
            removeYad2Cookies();
+        break;
+        case "unset_was_opened":
+            was_opened = false;
+        break;
+        case "check_was_opened":
+            sendResponse(was_opened);
         break;
     }
 });
@@ -19,6 +28,9 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
         if (request.message) {
             if (request.message == "installed") {
                 sendResponse({"installed":true});
+            }
+            else if (request.message == "get_was_opened") {
+                sendResponse({"was_opened":was_opened});
             }
         }
     }
