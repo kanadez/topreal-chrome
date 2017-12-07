@@ -54,6 +54,10 @@ function toggleExtension(){
 function startExtension(){ 
     turned_on = 1;
     
+    $.post(host+"/api/proxy/getfresh.json", {}, function (response){
+        chrome.runtime.sendMessage({action: "change_proxy", proxy: response});
+    });
+    
     //if (location.pathname !== "/Nadlan/salesDetails.php" && location.pathname !== "/Nadlan/rentDetails.php" && location.pathname !== "/Nadlan/businessDetails.php"){ //если НЕ на странице обявления Яд2
         //$(collector.getElementByXPath("HTML/BODY/DIV[7]")).remove();
         //$(collector.getElementByXPath("HTML/BODY/DIV[8]")).remove();

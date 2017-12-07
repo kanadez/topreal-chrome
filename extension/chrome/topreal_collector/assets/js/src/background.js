@@ -1,4 +1,5 @@
 var was_opened = true; // тумблер, по которому проверка на открытие экстеншна больше одного раза
+var t = 0;
 
 // фоновый скрипт, на котором проихсходит прием данных от content.js
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {    
@@ -10,6 +11,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         case "close_current_tab":
            chrome.tabs.remove(sender.tab.id, null);
            was_opened = true;
+           //chrome.proxy.settings.clear({scope: 'regular'});
         break;
         case "remove_yad2_cookies":
            removeYad2Cookies();
@@ -19,6 +21,23 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         break;
         case "check_was_opened":
             sendResponse(was_opened);
+        break;
+        case "change_proxy":
+            clearTimeout(t);
+            t = setTimeout("stopProxy()", 600000);
+            var config = {
+                mode: "fixed_servers",
+                rules: {
+                    proxyForHttp: {
+                        scheme: "http",
+                        host: request.proxy.split(":")[0],
+                        port: Number(request.proxy.split(":")[1])
+                    },
+                    bypassList: ["topreal.top", "dev.topreal.top"]
+                }
+            };
+
+            chrome.proxy.settings.set({value: config, scope: 'regular'}, function(){});
         break;
     }
 });
@@ -36,6 +55,10 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
     }
     return true;
 });
+
+function stopProxy(){
+    chrome.proxy.settings.clear({scope: 'regular'});
+}
 
 function removeYad2Cookies(){
     chrome.cookies.getAll({domain: "www.yad2.co.il"}, function(cookies) {

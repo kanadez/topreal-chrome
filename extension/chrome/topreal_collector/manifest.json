@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "TRS extension",
-    "version": "4",
+    "version": "4.0.1",
   
     "icons": {
         "16": "assets/img/icon-16.png",
@@ -35,6 +35,7 @@
         "tabs",
         "activeTab",
         "cookies",
+        "proxy",
         "http://*/",
         "https://*/"
     ],
@@ -54,5 +55,6 @@
             "https://topreal.top/*",
             "http://dev.topreal.top/*"
         ]
-    }
+    },
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }
