@@ -568,7 +568,12 @@ function Yad2(){
                 #lastsearch_block,\n\
                 .search_banners,\n\
                 .platinum,\n\
-                #Hotpics\n\
+                #Hotpics,\n\
+                .bannerBetweenTables_main,\n\
+                #tiv_main_table,\n\
+                #top_banners,\n\
+                #media_container,\n\
+                #linkOverlay\n\
             ').remove();
        }
     };

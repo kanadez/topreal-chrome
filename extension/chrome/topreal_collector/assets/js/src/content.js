@@ -54,9 +54,9 @@ function toggleExtension(){
 function startExtension(){ 
     turned_on = 1;
     
-    $.post(host+"/api/proxy/getfresh.json", {}, function (response){
+    /*$.post(host+"/api/proxy/getfresh.json", {}, function (response){
         chrome.runtime.sendMessage({action: "change_proxy", proxy: response});
-    });
+    });*/
     
     //if (location.pathname !== "/Nadlan/salesDetails.php" && location.pathname !== "/Nadlan/rentDetails.php" && location.pathname !== "/Nadlan/businessDetails.php"){ //если НЕ на странице обявления Яд2
         //$(collector.getElementByXPath("HTML/BODY/DIV[7]")).remove();
@@ -72,7 +72,7 @@ function startExtension(){
         
         $('#buttons_div').show().dialog({
             width: 300,
-            height: 270,
+            height: 300,
             dialogClass: 'buttons_dialog',
             position: { my: "left top+50", at: "left top+50", of: window },
             beforeClose: function( event, ui ) {
@@ -103,7 +103,7 @@ function startExtension(){
             <select id="collector_select" style="display:none;"><option value="0">Select collector</option></select></p>\n\
             <span id="user_message_span"><span locale="open_phone_and_click">Откройте номер телефона и нажмите:</span></span>\n\
             <button class="builder_button" id="try_collector_button" locale="collector_create_card">Создать карточку</button>\n\
-            <a style="display:none" id="collector_locale_download_a" href="'+host+'/storage/collector_locale.csv" style="display:none;">Download collector locale</a>\n\
+\n\         <a style="display:none" id="collector_locale_download_a" href="'+host+'/storage/collector_locale.csv" style="display:none;">Download collector locale</a>\n\
             <span style="display:none" id="download_error_span" style="display:none"></span>\n\
             <button style="display:none"  class="builder_button"  id="show_selected_elements_button">Show selected elements</button>\n\
             <button style="display:none"  class="builder_button"  id="show_collector_data_button">Show collector data</button>\n\
@@ -148,6 +148,10 @@ function startExtension(){
     collector.current.afterLoad();
     
     if (collector.current.notOnAdsPage()){ //если НЕ на странице обявления Яд2
+        $.post(host+"/api/proxy/getfresh.json", {}, function (response){
+            chrome.runtime.sendMessage({action: "change_proxy", proxy: response});
+        });
+        
         $('#user_message_span').html('<span style="font-size:1.5em; width:100%; display:block;" locale="select_property_from_list">Выберите недвижимость из списка</span><br><span locale="it_ll_open_in_new_tab">Она откроется в новой вкладке</span>');
         $('#try_collector_button').hide();
         
@@ -196,6 +200,19 @@ function startExtension(){
     $('#try_collector_button').click(function(){
         collector.checkSession();
     });
+    
+    /*$('#reproxy_button').click(function(){
+        $('#reproxy_button').attr("disabled", true).text("Подождите...");
+        
+        $.post(host+"/api/proxy/getfresh.json", {}, function (response){
+            chrome.runtime.sendMessage({action: "change_proxy", proxy: response});
+            location.reload();
+        });
+    });
+    
+    $('#test_proxy_button').click(function(){
+        chrome.runtime.sendMessage({action: "set_test_proxy"});
+    });*/
 }
 
 function stopExtension() { 

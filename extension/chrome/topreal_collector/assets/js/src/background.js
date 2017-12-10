@@ -1,5 +1,7 @@
 var was_opened = true; // тумблер, по которому проверка на открытие экстеншна больше одного раза
 var t = 0;
+var r = null;
+var tab_id = null;
 
 // фоновый скрипт, на котором проихсходит прием данных от content.js
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {    
@@ -25,21 +27,70 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         case "change_proxy":
             clearTimeout(t);
             t = setTimeout("stopProxy()", 600000);
+            r = request;
+            tab_id = sender.tab.id;
+            
+            startProxy();
+        break;
+        case "set_test_proxy":
+            var config = {
+            mode: "fixed_servers",
+            rules: {
+                proxyForHttp: {
+                    scheme: "http",
+                    host: "127.0.0.1",
+                    port: 8080
+                },
+                bypassList: ["topreal.top", "dev.topreal.top"]
+            }
+        };
+
+        chrome.proxy.settings.set({value: config, scope: 'regular'}, function(){});
+    }
+});
+
+chrome.proxy.onProxyError.addListener(function(d){
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', "http://dev.topreal.top/api/proxy/getfresh.json", true);
+    xhr.send();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState != 4) {
+          return false;
+        }
+        
+        if (xhr.status === 200){
+            var parsed_response = JSON.parse(xhr.responseText);
+            
             var config = {
                 mode: "fixed_servers",
                 rules: {
                     proxyForHttp: {
                         scheme: "http",
-                        host: request.proxy.split(":")[0],
-                        port: Number(request.proxy.split(":")[1])
+                        host: parsed_response.split(":")[0],
+                        port: Number(parsed_response.split(":")[1])
                     },
                     bypassList: ["topreal.top", "dev.topreal.top"]
                 }
             };
 
             chrome.proxy.settings.set({value: config, scope: 'regular'}, function(){});
-        break;
-    }
+            
+            chrome.tabs.getSelected(null, function(tab) {
+                var tabId = tab.id;
+                tabUrl = tabId.url;
+
+                chrome.tabs.reload(tabId, null, null);
+            });
+            
+            //console.log('result', xhr.responseText);
+        }
+        else{
+            //console.log('err', xhr.responseText);
+        }
+    };
+    //startProxy();
+    //chrome.tabs.reload(tab_id, null, null);
 });
 
 chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse){ // listener for checking extension exist
@@ -56,11 +107,30 @@ chrome.runtime.onMessageExternal.addListener(function(request, sender, sendRespo
     return true;
 });
 
+function startProxy(){
+    var config = {
+        mode: "fixed_servers",
+        rules: {
+            proxyForHttp: {
+                scheme: "http",
+                host: r.proxy.split(":")[0],
+                port: Number(r.proxy.split(":")[1])
+            },
+            bypassList: ["topreal.top", "dev.topreal.top"]
+        }
+    };
+
+    chrome.proxy.settings.set({value: config, scope: 'regular'}, function(){});
+    r = null;
+}
+
 function stopProxy(){
     chrome.proxy.settings.clear({scope: 'regular'});
 }
 
 function removeYad2Cookies(){
+    //return false;
+    
     chrome.cookies.getAll({domain: "www.yad2.co.il"}, function(cookies) {
         for(var i=0; i<cookies.length;i++) {
             chrome.cookies.remove({url: "http://www.yad2.co.il" + cookies[i].path, name: cookies[i].name});
