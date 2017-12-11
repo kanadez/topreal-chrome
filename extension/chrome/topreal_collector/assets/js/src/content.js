@@ -103,7 +103,8 @@ function startExtension(){
             <select id="collector_select" style="display:none;"><option value="0">Select collector</option></select></p>\n\
             <span id="user_message_span"><span locale="open_phone_and_click">Откройте номер телефона и нажмите:</span></span>\n\
             <button class="builder_button" id="try_collector_button" locale="collector_create_card">Создать карточку</button>\n\
-\n\         <a style="display:none" id="collector_locale_download_a" href="'+host+'/storage/collector_locale.csv" style="display:none;">Download collector locale</a>\n\
+            <span id="no_phone_alert_span" style="color:yellow;display:none;font-size:0.8em;" locale="collector_msg2"></span>\n\
+             <a style="display:none" id="collector_locale_download_a" href="'+host+'/storage/collector_locale.csv" style="display:none;">Download collector locale</a>\n\
             <span style="display:none" id="download_error_span" style="display:none"></span>\n\
             <button style="display:none"  class="builder_button"  id="show_selected_elements_button">Show selected elements</button>\n\
             <button style="display:none"  class="builder_button"  id="show_collector_data_button">Show collector data</button>\n\

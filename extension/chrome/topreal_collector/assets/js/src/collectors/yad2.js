@@ -42,8 +42,12 @@ function Yad2(){
         var types = "";
         
         if (utils.stringContains(frameElem, "להצגת המספר")){
-            alert(localization.getVariable("collector_msg2"));
+            //alert(localization.getVariable("collector_msg2"));
+            $('#no_phone_alert_span').show();
             return 0;
+        }
+        else{
+            $('#no_phone_alert_span').hide();
         }
         
         var value = types = this.TryParseFrameValue(frameElem, "סוג הנכס:");// парсим аскрипшн
@@ -252,23 +256,8 @@ function Yad2(){
         value = this.TryParseFrameValue(frameElem, "כתובת:");
         
         if (!utils.isNullOrEmpty(value)){
-            var splitted = value.split(" ");
-
-            if (splitted.length > 1){
-                var street = "";
-                var house_number = isNaN(splitted[splitted.length-1]) ? "" :  splitted.pop();
-
-                for (var s = 0; s < splitted.length; s++){
-                    street += splitted[s]+" ";
-                }
-
-                values["street"] = street.trim(); //value.replace(/\d/g, ""); // плохо. посылплентся, если в названии улицы будет цифра
-                values["house_number"] = house_number;
-            }
-            else{
-                values["street"] = value.trim();
-                values["house_number"] = "";
-            }
+            values["street"] = value.replace(/\d/g, "").trim();
+            values["house_number"] = value.replace(/\D/g, "").trim();
         }
 
         value = this.TryParseFrameValue(frameElem, "קומה:");
