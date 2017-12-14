@@ -60,6 +60,8 @@ chrome.proxy.onProxyError.addListener(function(d){
         }
         
         if (xhr.status === 200){
+            removeYad2Cookies();
+            
             var parsed_response = JSON.parse(xhr.responseText);
             
             var config = {
