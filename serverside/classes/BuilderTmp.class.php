@@ -169,6 +169,8 @@ class BuilderTmp{
         $property->setStockHistory($property_to_update->id, '{"price":{"old":"'.$property_to_update->price.'","new":"'.$new_price.'"}}');
         $property_to_update->price = intval($new_price);
         $property_to_update->last_updated = time();
+        
+        PropertyExternal::createLink($property_to_update, $external_id);
          
         return $property_to_update->save();
     }
@@ -188,12 +190,16 @@ class BuilderTmp{
         $property->setStockHistory($id, '{"price":{"old":"'.$property_to_update->price.'","new":"'.$new_price.'"}}');
         $property_to_update->price = intval($new_price);
         $property_to_update->last_updated = time();
+        
+        PropertyExternal::createLink($property_to_update, $property_to_update->external_id);
+        PropertyExternal::createLink($property_to_update, $property_to_update->external_id_hex);
+        PropertyExternal::createLink($property_to_update, $property_to_update->external_id_winwin);
          
         return $property_to_update->save();
     }
     
     public function createProperty($json_data){
-        global $property_form_data, $currency, $agency, $googleac;
+        global $property_form_data, $currency, $agency, $googleac, $stock;
         $decoded = json_decode($json_data, true);
         $user = $_SESSION["user"];
         $suffix = $decoded["collector_suffix"];
@@ -214,11 +220,13 @@ class BuilderTmp{
                     "need_to_update" => $agency->getId() == 1 && ($properties[0]->price != $decoded["price"] || $properties[0]->last_updated < time()-5184000) ? true : false
                 ];
                 
+                PropertyExternal::createLink($properties[0], $decoded['external_id_'.$suffix]);
+                
                 throw new Exception(json_encode($message), 405);
             }
             
             //############### проверяем есть ли карточка с таким номером тел. и ценой в стоке или агентстве ############### //
-            $query = DB::createQuery()->select('id, last_updated, price, street_text, currency_id')->where('(contact1 = ? OR contact2 = ? OR contact3 = ? OR contact4 = ?) AND price = ? AND (agency = ? OR stock = 1) AND temporary = 0 AND deleted = 0'); 
+            $query = DB::createQuery()->select('id, last_updated, price, street_text, currency_id, external_id, external_id_hex, external_id_winwin')->where('(contact1 = ? OR contact2 = ? OR contact3 = ? OR contact4 = ?) AND price = ? AND (agency = ? OR stock = 1) AND temporary = 0 AND deleted = 0'); 
             $properties = Property::getList($query, [$decoded["contact1"], $decoded["contact1"], $decoded["contact1"], $decoded["contact1"], $decoded["price"], $agency->getId()]);
 
             if (count($properties) > 0){
@@ -230,6 +238,10 @@ class BuilderTmp{
                     "card_id" => $properties[0]->id,
                     "need_to_update" => false
                 ];
+                
+                PropertyExternal::createLink($properties[0], $properties[0]->external_id);
+                PropertyExternal::createLink($properties[0], $properties[0]->external_id_hex);
+                PropertyExternal::createLink($properties[0], $properties[0]->external_id_winwin);
                 
                 throw new Exception(json_encode($message), 405);
             }
@@ -601,6 +613,10 @@ class BuilderTmp{
                     break;
                 }
             }
+            
+            $property_object_vars = get_object_vars($property);
+            $stock->createNew($property->id, json_encode($property_object_vars));
+            $property->stock_changed = 1;
             
             $response = $property->save();
         }
