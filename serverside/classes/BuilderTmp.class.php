@@ -220,7 +220,7 @@ class BuilderTmp{
                     "need_to_update" => $agency->getId() == 1 && ($properties[0]->price != $decoded["price"] || $properties[0]->last_updated < time()-5184000) ? true : false
                 ];
                 
-                PropertyExternal::createLink($properties[0], $decoded['external_id_'.$suffix]);
+                $res = PropertyExternal::createLink($properties[0], $decoded['external_id_'.$suffix]);
                 
                 throw new Exception(json_encode($message), 405);
             }
@@ -239,9 +239,7 @@ class BuilderTmp{
                     "need_to_update" => false
                 ];
                 
-                PropertyExternal::createLink($properties[0], $properties[0]->external_id);
-                PropertyExternal::createLink($properties[0], $properties[0]->external_id_hex);
-                PropertyExternal::createLink($properties[0], $properties[0]->external_id_winwin);
+                $res = PropertyExternal::createLink($properties[0], $decoded['external_id_'.$suffix]);
                 
                 throw new Exception(json_encode($message), 405);
             }
