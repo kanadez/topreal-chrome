@@ -612,10 +612,6 @@ class BuilderTmp{
                 }
             }
             
-            $property_object_vars = get_object_vars($property);
-            $stock->createNew($property->id, json_encode($property_object_vars));
-            $property->stock_changed = 1;
-            
             $response = $property->save();
         }
         catch (Exception $e){
