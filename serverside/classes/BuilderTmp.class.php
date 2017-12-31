@@ -240,6 +240,11 @@ class BuilderTmp{
                 ];
                 
                 $res = PropertyExternal::createLink($properties[0], $decoded['external_id_'.$suffix]);
+                $p = Property::load($properties[0]->id);
+                $ex_cell = 'external_id_'.$suffix;
+                $p->$ex_cell = $decoded['external_id_'.$suffix];
+                $p->external_id = $decoded['external_id_'.$suffix];
+                $p->save();
                 
                 throw new Exception(json_encode($message), 405);
             }
