@@ -126,9 +126,11 @@ function startExtension(){
             <span id="card_already_exist_error_span" style="display:none;" locale="card_already_exist_error">Что-то пошло не так. Обновите страницу и попробуйте заново.</span>\n\
             <span id="card_already_exist_success_span" style="display:none;" locale="card_already_exist_success">Карточка успешно обновлена. Нажмите "Выход".</span>\n\
             <span locale="card_already_exist"></span>\n\
-            <br><span locale="date_label">Дата</span>&nbsp;<span id="existing_card_collect_date_span"></span>\n\
-            <br><span locale="price_label">Цена</span>&nbsp;<span id="existing_card_price_span"></span>\n\
-            <br><span locale="address">Адрес</span>&nbsp;<span id="existing_card_collect_address_span"></span>\n\
+            <br><span locale="date_label">Дата</span>:&nbsp;<span id="existing_card_collect_date_span"></span>\n\
+            <br><span locale="price_label">Цена</span>:&nbsp;<span id="existing_card_price_span"></span>\n\
+            <br><span locale="address">Адрес</span>:&nbsp;<span id="existing_card_collect_address_span"></span>\n\
+            <br><span locale="house_flat">Дом/Квартира</span>:&nbsp;<span id="existing_card_collect_house_flat_span"></span>\n\
+            <br><span locale="floor_label">Этаж</span>:&nbsp;<span id="existing_card_collect_floor_span"></span>\n\
             <p></p><button locale="open_existing_card_ext_button" style="float:right;margin-bottom:10px;" id="open_existing_card_button">Открыть на TopReal</button>\n\
             <br><p></p><button locale="exit" style="float:right;margin-left:10px;" id="close_existing_card_button">Выход</button>\n\
             <button locale="update_card" style="float:right;display:none;" id="update_existing_card_button">Обновить карточку</button>\n\
@@ -141,9 +143,11 @@ function startExtension(){
             <span id="ext_card_already_exist_error_span" style="display:none;" locale="card_already_exist_error">Что-то пошло не так. Обновите страницу и попробуйте заново.</span>\n\
             <span id="ext_card_already_exist_success_span" style="display:none;" locale="ext_card_already_exist_success">Карточка успешно обновлена. Нажмите "OK".</span>\n\
             <span locale="card_already_exist"></span>\n\
-            <br><span locale="date_label">Дата</span>&nbsp;<span id="existing_card_ext_collect_date_span"></span>\n\
-            <br><span locale="price_label">Цена</span>&nbsp;<span id="existing_card_ext_price_span"></span>\n\
-            <br><span locale="address">Адрес</span>&nbsp;<span id="existing_card_ext_address_span"></span>\n\
+            <br><span locale="date_label">Дата</span>:&nbsp;<span id="existing_card_ext_collect_date_span"></span>\n\
+            <br><span locale="price_label">Цена</span>:&nbsp;<span id="existing_card_ext_price_span"></span>\n\
+            <br><span locale="address">Адрес</span>:&nbsp;<span id="existing_card_ext_address_span"></span>\n\
+            <br><span locale="floor_label">Этаж</span>:&nbsp;<span id="existing_card_ext_floor_span"></span>\n\
+            <br><span locale="rooms_label">Комнаты</span>:&nbsp;<span id="existing_card_ext_rooms_span"></span>\n\
             <p></p><button style="float:right;margin-left:10px;" id="close_existing_card_ext_button">OK</button>\n\
             <button locale="update_card" style="float:right;display:none;" id="update_existing_card_ext_button">Обновить карточку</button>\n\
             <button style="float:right;margin:0 10px;" id="open_existing_card_ext_button" locale="open_existing_card_ext_button">Открыть на TopReal</button>\n\

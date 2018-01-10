@@ -23,10 +23,10 @@ class BuilderTmp{
             }
             else{
                 if ($agency->getId() == 1 && ((trim($ids_decoded[$i][1]) != "" && $property->price != $ids_decoded[$i][1]) || $property->last_updated < time()-5184000)){
-                    $ids_decoded[$i] = [$ids_decoded[$i][0], true, $property->last_updated, $property->price, $property->id, $property->street_text];
+                    $ids_decoded[$i] = [$ids_decoded[$i][0], true, $property->last_updated, $property->price, $property->id, $property->street_text, $property->floor_from, $property->rooms_count];
                 }
                 else{
-                    $ids_decoded[$i] = [$ids_decoded[$i][0], false, $property->last_updated, $property->price, $property->id, $property->street_text];
+                    $ids_decoded[$i] = [$ids_decoded[$i][0], false, $property->last_updated, $property->price, $property->id, $property->street_text, $property->floor_from, $property->rooms_count];
                 }
             }
         }
@@ -199,7 +199,7 @@ class BuilderTmp{
     }
     
     public function createProperty($json_data){
-        global $property_form_data, $currency, $agency, $googleac, $stock;
+        global $property_form_data, $currency, $agency, $googleac, $stock, $utils;
         $decoded = json_decode($json_data, true);
         $user = $_SESSION["user"];
         $suffix = $decoded["collector_suffix"];
@@ -207,7 +207,7 @@ class BuilderTmp{
         try{// здесь нужно будет все параметры сделать динамичными :
             //############### проверяем есть ли такая карточка в стоке или агентстве ############### //
         
-            $query = DB::createQuery()->select('id, last_updated, price, street_text, currency_id')->where('external_id_'.$suffix.' = ? AND (agency = ? OR stock = 1) AND temporary = 0 AND deleted = 0'); 
+            $query = DB::createQuery()->select('id, last_updated, price, street_text, house_number, flat_number, floor_from, currency_id')->where('external_id_'.$suffix.' = ? AND (agency = ? OR stock = 1) AND temporary = 0 AND deleted = 0'); 
             $properties = Property::getList($query, [intval($decoded['external_id_'.$suffix]), $agency->getId()]);
 
             if (count($properties) > 0){
@@ -216,6 +216,8 @@ class BuilderTmp{
                     "date" => $properties[0]->last_updated,
                     "price" => $properties[0]->price.' '.$currency->getSymbolCode($properties[0]->currency_id),
                     "address" => $properties[0]->street_text,
+                    "house_flat" => $properties[0]->house_number."/".$properties[0]->flat_number,
+                    "floor" => $properties[0]->floor_from,
                     "card_id" => $properties[0]->id,
                     "need_to_update" => $agency->getId() == 1 && ($properties[0]->price != $decoded["price"] || $properties[0]->last_updated < time()-5184000) ? true : false
                 ];
@@ -226,8 +228,11 @@ class BuilderTmp{
             }
             
             //############### проверяем есть ли карточка с таким номером тел. и ценой в стоке или агентстве ############### //
-            $query = DB::createQuery()->select('id, last_updated, price, street_text, currency_id, external_id, external_id_hex, external_id_winwin')->where('(contact1 = ? OR contact2 = ? OR contact3 = ? OR contact4 = ?) AND price = ? AND (agency = ? OR stock = 1) AND temporary = 0 AND deleted = 0'); 
-            $properties = Property::getList($query, [$decoded["contact1"], $decoded["contact1"], $decoded["contact1"], $decoded["contact1"], $decoded["price"], $agency->getId()]);
+            $phone_exploded = $utils->explodePhone($decoded["contact1"]);
+            $query = DB::createQuery()
+                    ->select('id, last_updated, price, street_text, house_number, flat_number, floor_from, currency_id, external_id, external_id_hex, external_id_winwin')
+                    ->where('(contact1 REGEXP ? OR contact2 REGEXP ? OR contact3 REGEXP ? OR contact4 REGEXP ?) AND stock = 1 AND temporary = 0 AND deleted = 0'); 
+            $properties = Property::getList($query, [$phone_exploded, $phone_exploded, $phone_exploded, $phone_exploded]);
 
             if (count($properties) > 0){
                 $message = [
@@ -235,8 +240,10 @@ class BuilderTmp{
                     "date" => $properties[0]->last_updated,
                     "price" => $properties[0]->price.' '.$currency->getSymbolCode($properties[0]->currency_id),
                     "address" => $properties[0]->street_text,
+                    "house_flat" => $properties[0]->house_number."/".$properties[0]->flat_number,
+                    "floor" => $properties[0]->floor_from,
                     "card_id" => $properties[0]->id,
-                    "need_to_update" => false
+                    "need_to_update" => $properties[0]->price != $decoded["price"] || $properties[0]->last_updated < time()-5184000 ? true : false
                 ];
                 
                 $res = PropertyExternal::createLink($properties[0], $decoded['external_id_'.$suffix]);

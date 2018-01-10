@@ -20,7 +20,7 @@ function Collector(){
                 $('.ui-dialog[aria-describedby=not_auth_dialog]').show();
                 $('#not_auth_dialog').show().dialog({
                     width: 350,
-                    height: 230,
+                    height: 300,
                     dialogClass: 'buttons_dialog',
                     position: { my: "center", at: "center", of: window },
                     beforeClose: function( event, ui ) {
@@ -48,6 +48,8 @@ function Collector(){
                     $('#existing_card_collect_date_span').html(utils.convertTimestampToDate(obj.date));
                     $('#existing_card_price_span').html(utils.numberWithCommas(obj.price));
                     $('#existing_card_collect_address_span').html(obj.address);
+                    $('#existing_card_collect_house_flat_span').html(obj.house_flat);
+                    $('#existing_card_collect_floor_span').html(obj.floor);
                     $('#open_existing_card_button').click({topreal_id: obj.card_id}, function(e){
                         chrome.runtime.sendMessage({action: "open_yad2_newad", url: host+"/property?id="+e.data.topreal_id});
                     });
@@ -58,7 +60,7 @@ function Collector(){
                     
                     $('#card_exist_dialog').show().dialog({
                         width: 350,
-                        height: 230,
+                        height: 350,
                         dialogClass: 'buttons_dialog',
                         position: { my: "center", at: "center", of: window },
                         beforeClose: function( event, ui ) {
@@ -121,7 +123,7 @@ function Collector(){
                     
                     $('#card_exist_dialog').show().dialog({
                         width: 350,
-                        height: 230,
+                        height: 300,
                         dialogClass: 'buttons_dialog',
                         position: { my: "center", at: "center", of: window },
                         beforeClose: function( event, ui ) {

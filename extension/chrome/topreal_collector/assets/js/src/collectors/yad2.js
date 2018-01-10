@@ -613,6 +613,8 @@ function Yad2(){
                 $('#existing_card_ext_collect_date_span').text(utils.convertTimestampToDate(parent_tr.attr("topreal_last_updated")));
                 $('#existing_card_ext_price_span').text(utils.numberWithCommas(parent_tr.attr("topreal_price")));
                 $('#existing_card_ext_address_span').text(parent_tr.attr("topreal_address"));
+                $('#existing_card_ext_floor_span').text(parent_tr.attr("topreal_floor"));
+                $('#existing_card_ext_rooms_span').text(parent_tr.attr("topreal_rooms"));
                 $('#open_existing_card_ext_button').unbind("click").click({topreal_id: parent_tr.attr("topreal_id")}, function(e){
                     chrome.runtime.sendMessage({action: "open_yad2_newad", url: host+"/property?id="+e.data.topreal_id});
                 });
@@ -623,7 +625,7 @@ function Yad2(){
                 else{
                     $('#card_exist_ext_dialog').show().dialog({
                         width: 350,
-                        height: 160,
+                        height: 200,
                         dialogClass: 'buttons_dialog',
                         position: { my: "center", at: "center", of: window },
                         beforeClose: function( event, ui ) {
@@ -685,6 +687,8 @@ function Yad2(){
                             $('#tr_Ad_2_1_'+response[key][0]).attr("topreal_last_updated", response[key][2]);
                             $('#tr_Ad_2_1_'+response[key][0]).attr("topreal_id", response[key][4]);
                             $('#tr_Ad_2_1_'+response[key][0]).attr("topreal_address", response[key][5]);
+                            $('#tr_Ad_2_1_'+response[key][0]).attr("topreal_floor", response[key][6]);
+                            $('#tr_Ad_2_1_'+response[key][0]).attr("topreal_rooms", response[key][7]);
                         }
                         else if (location.pathname === "/Nadlan/rent.php"){
                             $('#tr_Ad_2_2_'+response[key][0]).attr("need_to_update", response[key][1]);
@@ -692,6 +696,8 @@ function Yad2(){
                             $('#tr_Ad_2_2_'+response[key][0]).attr("topreal_last_updated", response[key][2]);
                             $('#tr_Ad_2_2_'+response[key][0]).attr("topreal_id", response[key][4]);
                             $('#tr_Ad_2_2_'+response[key][0]).attr("topreal_address", response[key][5]);
+                            $('#tr_Ad_2_1_'+response[key][0]).attr("topreal_floor", response[key][6]);
+                            $('#tr_Ad_2_1_'+response[key][0]).attr("topreal_rooms", response[key][7]);
                         }
                     }
                 }
