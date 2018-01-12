@@ -1,5 +1,5 @@
 // код, выполняемый на каждой отедльной веб-странице
-var test_mode = 0;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
+var test_mode = 1;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
 var host = test_mode === 1 ? "http://dev.topreal.top" : "https://topreal.top";
 var localization = new Localization();
 var utils = new Utils();
@@ -92,7 +92,15 @@ function startExtension(){
     });
 
     $(document.body).append(
-        '<div id="buttons_div" translate="no" locale_title="collector" title="Сборщик данных" style="text-align;center;">\n\
+        '<style>\n\
+            #same_phone_card_exist_table {\n\
+                border-collapse: collapse;\n\
+            }\n\
+            #same_phone_card_exist_table, #same_phone_card_exist_table th, #same_phone_card_exist_table td {\n\
+                border: 1px solid white;\n\
+            }\n\
+        </style>\n\
+        <div id="buttons_div" translate="no" locale_title="collector" title="Сборщик данных" style="text-align;center;">\n\
             <button style="display:none" class="builder_button" id="show_collected_data_button">Show collected data</button>\n\
             <button style="display:none" class="builder_button" id="switch_select_mode_button">Switch select mode</button>\n\
             <button style="display:none" class="builder_button" id="create_builder_button">Create collector</button>\n\
@@ -135,9 +143,34 @@ function startExtension(){
             <br><p></p><button locale="exit" style="float:right;margin-left:10px;" id="close_existing_card_button">Выход</button>\n\
             <button locale="update_card" style="float:right;display:none;" id="update_existing_card_button">Обновить карточку</button>\n\
         </div>\n\
+        <div id="same_phone_card_dialog" locale_title="warning_h4" title="Внимание" style="display:none;">\n\
+            <span id="same_phone_card_exist_error_span" style="display:none;" locale="card_already_exist_error">Что-то пошло не так. Обновите страницу и попробуйте заново.</span>\n\
+            <span id="same_phone_card_exist_success_span" style="display:none;" locale="card_already_exist_success">Карточка успешно обновлена. Нажмите "Выход".</span>\n\
+            <span locale="same_phone_card_exist"></span>\n\
+            <table id="same_phone_card_exist_table">\n\
+                <thead>\n\
+                    <th locale="date_label"></th>\n\
+                    <th locale="price_label"></th>\n\
+                    <th locale="address"></th>\n\
+                    <th>H/F</th>\n\
+                    <th>Fl</th>\n\
+                    <th>R</th>\n\
+                    <th>S</th>\n\
+                    <th></th>\n\
+                </thead>\n\
+                <tbody></tbody>\n\
+            </table>\n\
+            <!--<p></p><button locale="open_existing_card_ext_button" style="float:right;margin-bottom:10px;" id="open_same_phone_card_button">Открыть на TopReal</button>-->\n\
+            <br><p></p><button locale="exit" style="float:right;margin-left:10px;" id="close_same_phone_card_button">Выход</button>\n\
+            <!--<button locale="update_card" style="float:right;display:none;" id="update_same_phone_card_button">Обновить карточку</button>-->\n\
+        </div>\n\
         <div id="not_auth_dialog" locale_title="warning_h4" title="Внимание" style="display:none;background:red;">\n\
             <span id="not_auth_error_span" locale="collector_msg1">Вы не авторизовались на topreal.top. Это необходимо для сбора данных.</span>\n\
             <p></p><button style="float:right;margin-left:10px;" id="close_not_auth_dialog_button">OK</button>\n\
+        </div>\n\
+        <div id="card_create_success_dialog" locale_title="success_label" title="Успешно!" style="display:none;">\n\
+            <span id="create_success_span" locale="property_successfully_created">Недвижимость успешно создана!</span>\n\
+            <p></p><button style="float:right;margin-left:10px;" id="close_create_success_dialog_button">OK</button>\n\
         </div>\n\
         <div id="card_exist_ext_dialog" locale_title="warning_h4" title="Внимание" style="display:none;">\n\
             <span id="ext_card_already_exist_error_span" style="display:none;" locale="card_already_exist_error">Что-то пошло не так. Обновите страницу и попробуйте заново.</span>\n\
@@ -187,7 +220,7 @@ function startExtension(){
         }
     };
     
-    $('#close_existing_card_button').click(function(){
+    $('#close_existing_card_button, #close_same_phone_card_button').click(function(){
         //$("#card_exist_dialog").dialog("close");
         //chrome.runtime.sendMessage({action: "close_current_tab"});
         //window.close()
@@ -196,7 +229,11 @@ function startExtension(){
         //        console.log(tab);//chrome.tabs.remove(tab.id, function() { });
         //    });
         //chrome.runtime.sendMessage({action: "close_current_tab"});
-        $('.ui-dialog[aria-describedby=card_exist_dialog]').hide();
+        $('.ui-dialog[aria-describedby=card_exist_dialog], .ui-dialog[aria-describedby=same_phone_card_dialog]').hide();
+    });
+    
+    $('#close_create_success_dialog_button').click(function(){
+        chrome.runtime.sendMessage({action: "close_current_tab"});
     });
     
     $('#close_existing_card_ext_button').click(function(){

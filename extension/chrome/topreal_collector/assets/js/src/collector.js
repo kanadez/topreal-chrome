@@ -90,6 +90,88 @@ function Collector(){
                         }
                     );
                 }
+                else if (response.error.code == 406){
+                    var obj = JSON.parse(response.error.description);
+                    var cards_obj = obj.cards_data;
+                    $('#same_phone_card_exist_table tbody').html("");
+                    
+                    for (var i = 0; i < cards_obj.length; i++){
+                        $('#same_phone_card_exist_table tbody').append(
+                            "<tr>\n\
+                                <td>"+utils.convertTimestampToDate(cards_obj[i].date)+"</td>\n\
+                                <td>"+utils.numberWithCommas(cards_obj[i].price)+"</td>\n\
+                                <td>"+cards_obj[i].address+"</td>\n\
+                                <td>"+cards_obj[i].house_flat+"</td>\n\
+                                <td>"+cards_obj[i].floor+"</td>\n\
+                                <td>"+cards_obj[i].rooms+"</td>\n\
+                                <td>"+cards_obj[i].home_size+"</td>\n\
+                                <td><button class='same_phone_card_update_button' data-external-id-key='"+cards_obj[i].external_id_key+"' data-external-id-value='"+cards_obj[i].external_id_value+"' data-card-id='"+cards_obj[i].card_id+"'>↺</button></td>\n\
+                            </tr>"
+                        );
+                        
+                        /*$('#open_same_phone_card_button').click({topreal_id: cards_obj[i].card_id}, function(e){
+                            chrome.runtime.sendMessage({action: "open_yad2_newad", url: host+"/property?id="+e.data.topreal_id});
+                        });*/
+                    }
+                    
+                    /*if (collector.current.TryParseFramePrice($(document).children().html()).length > 0){
+                        $('#update_same_phone_card_button').show();
+                    }*/
+                    
+                    $('#same_phone_card_dialog').show().dialog({
+                        width: 600,
+                        height: 450,
+                        dialogClass: 'buttons_dialog',
+                        position: { my: "center", at: "center", of: window },
+                        beforeClose: function( event, ui ) {
+                            $('#same_phone_card_dialog').hide();
+                        }
+                    });
+                    
+                    $('.same_phone_card_update_button').click(function(event){
+                        var arrayVals = collector.current.TryParseFramePrice($(document).children().html()).split(' ');
+                        var price_parsed = arrayVals[0].replace(/\D/g, "");
+                        
+                        $(event.target).text("...").attr("disabled", true);
+                        $.post(host+"/api/buildertmp/updateproperty.json",{
+                            id: $(event.target).data("card-id"),
+                            new_price: price_parsed,
+                            external_id_key: $(event.target).data("external-id-key"),
+                            external_id_value: $(event.target).data("external-id-value")
+                        },function (response){
+                            if (response.error != undefined){
+                                $('#same_phone_card_dialog>*').hide();
+                                $('#same_phone_card_exist_error_span').show();
+                            }
+                            else{
+                                $('#same_phone_card_dialog>*').hide();
+                                $('#same_phone_card_exist_success_span, #close_same_phone_card_button, #same_phone_card_dialog>p').show();
+                            }
+                        });
+                    });
+                    
+                    /*$('#update_same_phone_card_button').click({
+                            card_id: obj.card_id
+                        }, function(e){
+                            var arrayVals = collector.current.TryParseFramePrice($(document).children().html()).split(' ');
+                            var price_parsed = arrayVals[0].replace(/\D/g, "");
+
+                            $.post(host+"/api/buildertmp/updateproperty.json",{
+                                id: e.data.card_id,
+                                new_price: price_parsed
+                            },function (response){
+                                if (response.error != undefined){
+                                    $('#same_phone_card_dialog>*').hide();
+                                    $('#same_phone_card_exist_error_span').show();
+                                }
+                                else{
+                                    $('#same_phone_card_dialog>*').hide();
+                                    $('#same_phone_card_exist_success_span, #close_same_phone_card_button, #same_phone_card_dialog>p').show();
+                                }
+                            });
+                        }
+                    );*/
+                }
             }
             else{
                 collector.current.onCreatePropertySuccess(response);

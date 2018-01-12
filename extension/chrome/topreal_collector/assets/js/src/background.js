@@ -131,7 +131,7 @@ function stopProxy(){
 }
 
 function removeYad2Cookies(){
-    //return false;
+    return false;
     
     chrome.cookies.getAll({domain: "www.yad2.co.il"}, function(cookies) {
         for(var i=0; i<cookies.length;i++) {

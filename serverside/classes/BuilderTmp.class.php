@@ -175,7 +175,7 @@ class BuilderTmp{
         return $property_to_update->save();
     }
     
-    public function updateProperty($id, $new_price){
+    public function updateProperty($id, $new_price, $external_id_key = null, $external_id_value = null){
         global $property;
         
         $update_event = CollectorEvent::create([
@@ -189,6 +189,12 @@ class BuilderTmp{
         $property->savePriceHistory($id, $new_price, $property_to_update->price, $property_to_update->currency_id);
         $property->setStockHistory($id, '{"price":{"old":"'.$property_to_update->price.'","new":"'.$new_price.'"}}');
         $property_to_update->price = intval($new_price);
+        
+        if ($external_id_key != null && $external_id_value != null){
+            $property_to_update->$external_id_key = $external_id_value;
+            $property_to_update->external_id = $external_id_value;
+        }
+        
         $property_to_update->last_updated = time();
         
         PropertyExternal::createLink($property_to_update, $property_to_update->external_id);
@@ -230,30 +236,36 @@ class BuilderTmp{
             //############### проверяем есть ли карточка с таким номером тел. и ценой в стоке или агентстве ############### //
             $phone_exploded = $utils->explodePhone($decoded["contact1"]);
             $query = DB::createQuery()
-                    ->select('id, last_updated, price, street_text, house_number, flat_number, floor_from, currency_id, external_id, external_id_hex, external_id_winwin')
+                    ->select('id, last_updated, price, street_text, house_number, flat_number, floor_from, rooms_count, home_size, floors_count, currency_id, external_id, external_id_hex, external_id_winwin')
                     ->where('(contact1 REGEXP ? OR contact2 REGEXP ? OR contact3 REGEXP ? OR contact4 REGEXP ?) AND stock = 1 AND temporary = 0 AND deleted = 0'); 
             $properties = Property::getList($query, [$phone_exploded, $phone_exploded, $phone_exploded, $phone_exploded]);
 
             if (count($properties) > 0){
+                $cards_data = [];
+                
+                for ($i = 0; $i < count($properties); $i++){
+                    $card_data = [
+                        "date" => $properties[$i]->last_updated,
+                        "price" => $properties[$i]->price.' '.$currency->getSymbolCode($properties[$i]->currency_id),
+                        "address" => $properties[$i]->street_text,
+                        "house_flat" => $properties[$i]->house_number."/".$properties[$i]->flat_number,
+                        "floor" => $properties[$i]->floor_from."/".$properties[$i]->floors_count,
+                        "rooms" => $properties[$i]->rooms_count,
+                        "home_size" => $properties[$i]->home_size,
+                        "card_id" => $properties[$i]->id,
+                        "external_id_key" => 'external_id_'.$suffix,
+                        "external_id_value" => $decoded['external_id_'.$suffix],
+                        "need_to_update" => $properties[$i]->price != $decoded["price"] || $properties[$i]->last_updated < time()-5184000 ? true : false
+                    ];
+                    array_push($cards_data, $card_data);
+                }
+                
                 $message = [
-                    "message" => "card_already_exist", 
-                    "date" => $properties[0]->last_updated,
-                    "price" => $properties[0]->price.' '.$currency->getSymbolCode($properties[0]->currency_id),
-                    "address" => $properties[0]->street_text,
-                    "house_flat" => $properties[0]->house_number."/".$properties[0]->flat_number,
-                    "floor" => $properties[0]->floor_from,
-                    "card_id" => $properties[0]->id,
-                    "need_to_update" => $properties[0]->price != $decoded["price"] || $properties[0]->last_updated < time()-5184000 ? true : false
+                    "message" => "same_phone_card_exist", 
+                    "cards_data" => $cards_data
                 ];
                 
-                $res = PropertyExternal::createLink($properties[0], $decoded['external_id_'.$suffix]);
-                $p = Property::load($properties[0]->id);
-                $ex_cell = 'external_id_'.$suffix;
-                $p->$ex_cell = $decoded['external_id_'.$suffix];
-                $p->external_id = $decoded['external_id_'.$suffix];
-                $p->save();
-                
-                throw new Exception(json_encode($message), 405);
+                throw new Exception(json_encode($message), 406);
             }
 
             //###################################################################################### //
@@ -625,6 +637,10 @@ class BuilderTmp{
             }
             
             $response = $property->save();
+            
+            $property_object = new Property;
+            $property_props = get_object_vars($property);
+            $property_object->set($response, json_encode($property_props), 1);
         }
         catch (Exception $e){
             $response = ['error' => ['code' => $e->getCode(), 'description' => $e->getMessage()]];

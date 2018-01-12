@@ -706,7 +706,16 @@ function Yad2(){
     };
     
     this.onCreatePropertySuccess = function(response){
-        chrome.runtime.sendMessage({action: "open_yad2_newad", url: host+"/property?id="+response+"&mode=collected"});
-        chrome.runtime.sendMessage({action: "close_current_tab"});
+        $('#card_create_success_dialog').show().dialog({
+            width: 300,
+            height: 250,
+            dialogClass: 'buttons_dialog',
+            position: { my: "center", at: "center", of: window },
+            beforeClose: function( event, ui ) {
+                $('#card_create_success_dialog').hide();
+            }
+        });
+        //chrome.runtime.sendMessage({action: "open_yad2_newad", url: host+"/property?id="+response+"&mode=collected"});
+        //chrome.runtime.sendMessage({action: "close_current_tab"});
     };
 }

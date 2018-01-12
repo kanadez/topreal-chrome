@@ -22,7 +22,7 @@ function buildertmp_updatepropertyext(){
 
 function buildertmp_updateproperty(){
     global $buildertmp;
-    return $buildertmp->updateProperty($_POST["id"], $_POST["new_price"]);
+    return $buildertmp->updateProperty($_POST["id"], $_POST["new_price"], $_POST["external_id_key"], $_POST["external_id_value"]);
 }
 
 function buildertmp_createproperty(){
