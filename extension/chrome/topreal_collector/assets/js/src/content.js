@@ -1,5 +1,5 @@
 // код, выполняемый на каждой отедльной веб-странице
-var test_mode = 1;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
+var test_mode = 0;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
 var host = test_mode === 1 ? "http://dev.topreal.top" : "https://topreal.top";
 var localization = new Localization();
 var utils = new Utils();
