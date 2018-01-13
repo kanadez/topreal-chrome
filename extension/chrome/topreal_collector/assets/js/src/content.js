@@ -1,5 +1,5 @@
 // код, выполняемый на каждой отедльной веб-странице
-var test_mode = 0;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
+var test_mode = 1;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
 var host = test_mode === 1 ? "http://dev.topreal.top" : "https://topreal.top";
 var localization = new Localization();
 var utils = new Utils();
@@ -9,6 +9,7 @@ var turned_on = 0;
 var no_translate_mode = 0;
 var default_collector = 33;// сюда доджен читаться номер купленного и выбранного в Tools коллектора
 var locale = null;
+var creating_property_anyway = false;
 //$('head').append("<script type='text/javascript' src='//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'>");
 //var host = null;
 
@@ -144,7 +145,7 @@ function startExtension(){
             <button locale="update_card" style="float:right;display:none;" id="update_existing_card_button">Обновить карточку</button>\n\
         </div>\n\
         <div id="same_phone_card_dialog" locale_title="warning_h4" title="Внимание" style="display:none;">\n\
-            <span id="same_phone_card_exist_error_span" style="display:none;" locale="card_already_exist_error">Что-то пошло не так. Обновите страницу и попробуйте заново.</span>\n\
+            <span id="same_phone_card_exist_error_span" style="display:none;color:red;" locale="card_already_exist_error">Что-то пошло не так. Обновите страницу и попробуйте заново.</span>\n\
             <span id="same_phone_card_exist_success_span" style="display:none;" locale="card_already_exist_success">Карточка успешно обновлена. Нажмите "Выход".</span>\n\
             <span locale="same_phone_card_exist"></span>\n\
             <table id="same_phone_card_exist_table">\n\
@@ -161,6 +162,7 @@ function startExtension(){
                 <tbody></tbody>\n\
             </table>\n\
             <!--<p></p><button locale="open_existing_card_ext_button" style="float:right;margin-bottom:10px;" id="open_same_phone_card_button">Открыть на TopReal</button>-->\n\
+            <p></p><button locale="create_new_card_anyway" style="float:right;margin-bottom:10px;" id="create_new_card_anyway_button">Создать новую карточку</button>\n\
             <br><p></p><button locale="exit" style="float:right;margin-left:10px;" id="close_same_phone_card_button">Выход</button>\n\
             <!--<button locale="update_card" style="float:right;display:none;" id="update_same_phone_card_button">Обновить карточку</button>-->\n\
         </div>\n\
@@ -168,7 +170,7 @@ function startExtension(){
             <span id="not_auth_error_span" locale="collector_msg1">Вы не авторизовались на topreal.top. Это необходимо для сбора данных.</span>\n\
             <p></p><button style="float:right;margin-left:10px;" id="close_not_auth_dialog_button">OK</button>\n\
         </div>\n\
-        <div id="card_create_success_dialog" locale_title="success_label" title="Успешно!" style="display:none;">\n\
+        <div id="card_create_success_dialog" locale_title="success_label" title="Успешно!" style="display:none;background-color:#2cab2c;">\n\
             <span id="create_success_span" locale="property_successfully_created">Недвижимость успешно создана!</span>\n\
             <p></p><button style="float:right;margin-left:10px;" id="close_create_success_dialog_button">OK</button>\n\
         </div>\n\
@@ -249,13 +251,23 @@ function startExtension(){
     });
     
     $('#not_actual_property_button').click(function(){
-        chrome.runtime.sendMessage({action: "close_current_tab"});
+        $.post(host+"/api/buildertmp/removeexternal.json", {
+            external_id: getUrlParameter("topreal_external_property")
+        }, function (response){
+            chrome.runtime.sendMessage({action: "close_current_tab"});
+        });
     });
     
     $('#property_not_exist_button').click(function(){
         chrome.runtime.sendMessage({action: "close_current_tab"});
     });
     
+    
+    $('#create_new_card_anyway_button').click(function(){
+        $('#create_new_card_anyway_button').attr("disabled", true).text("Подождите...");
+        creating_property_anyway = true;
+        collector.checkSession();
+    });
     /*$.post(host+"/api/property/linkfromcollector.json", {
             
         }, function (response){
@@ -290,4 +302,17 @@ function switchSelectMode(){
     if (select_mode == 1)
         select_mode = 0;
     else select_mode = 1;
+}
+
+function getUrlParameter(parameter){
+    var params_string = window.location.href.slice(window.location.href.indexOf('?') + 1);
+    var params = params_string.split("&");
+    var result = {};
+
+    for (var i = 0; i < params.length; i++){
+       var tmp = params[i].split("=");
+       result[tmp[0]] = tmp[1];
+    }
+
+    return result[parameter];
 }

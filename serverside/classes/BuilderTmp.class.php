@@ -3,6 +3,12 @@
 use Database\TinyMVCDatabase as DB;
 
 class BuilderTmp{ 
+    public function removeExternalProperty($external_id){
+        $ep = PropertyExternal::load(intval($external_id));
+        $ep->deleted = 1;
+        return $ep->save();
+    }
+    
     public function getExist($ids, $collector){
         global $agency;
         
@@ -204,68 +210,69 @@ class BuilderTmp{
         return $property_to_update->save();
     }
     
-    public function createProperty($json_data){
+    public function createProperty($json_data, $check_existing){
         global $property_form_data, $currency, $agency, $googleac, $stock, $utils;
         $decoded = json_decode($json_data, true);
         $user = $_SESSION["user"];
         $suffix = $decoded["collector_suffix"];
         //return var_dump($decoded);
         try{// здесь нужно будет все параметры сделать динамичными :
-            //############### проверяем есть ли такая карточка в стоке или агентстве ############### //
-        
-            $query = DB::createQuery()->select('id, last_updated, price, street_text, house_number, flat_number, floor_from, currency_id')->where('external_id_'.$suffix.' = ? AND (agency = ? OR stock = 1) AND temporary = 0 AND deleted = 0'); 
-            $properties = Property::getList($query, [intval($decoded['external_id_'.$suffix]), $agency->getId()]);
+            if ($check_existing == 1){
+                //############### проверяем есть ли такая карточка в стоке или агентстве ############### //
+                $query = DB::createQuery()->select('id, last_updated, price, street_text, house_number, flat_number, floor_from, currency_id')->where('external_id_'.$suffix.' = ? AND (agency = ? OR stock = 1) AND temporary = 0 AND deleted = 0'); 
+                $properties = Property::getList($query, [intval($decoded['external_id_'.$suffix]), $agency->getId()]);
 
-            if (count($properties) > 0){
-                $message = [
-                    "message" => "card_already_exist", 
-                    "date" => $properties[0]->last_updated,
-                    "price" => $properties[0]->price.' '.$currency->getSymbolCode($properties[0]->currency_id),
-                    "address" => $properties[0]->street_text,
-                    "house_flat" => $properties[0]->house_number."/".$properties[0]->flat_number,
-                    "floor" => $properties[0]->floor_from,
-                    "card_id" => $properties[0]->id,
-                    "need_to_update" => $agency->getId() == 1 && ($properties[0]->price != $decoded["price"] || $properties[0]->last_updated < time()-5184000) ? true : false
-                ];
-                
-                $res = PropertyExternal::createLink($properties[0], $decoded['external_id_'.$suffix]);
-                
-                throw new Exception(json_encode($message), 405);
-            }
-            
-            //############### проверяем есть ли карточка с таким номером тел. и ценой в стоке или агентстве ############### //
-            $phone_exploded = $utils->explodePhone($decoded["contact1"]);
-            $query = DB::createQuery()
-                    ->select('id, last_updated, price, street_text, house_number, flat_number, floor_from, rooms_count, home_size, floors_count, currency_id, external_id, external_id_hex, external_id_winwin')
-                    ->where('(contact1 REGEXP ? OR contact2 REGEXP ? OR contact3 REGEXP ? OR contact4 REGEXP ?) AND stock = 1 AND temporary = 0 AND deleted = 0'); 
-            $properties = Property::getList($query, [$phone_exploded, $phone_exploded, $phone_exploded, $phone_exploded]);
-
-            if (count($properties) > 0){
-                $cards_data = [];
-                
-                for ($i = 0; $i < count($properties); $i++){
-                    $card_data = [
-                        "date" => $properties[$i]->last_updated,
-                        "price" => $properties[$i]->price.' '.$currency->getSymbolCode($properties[$i]->currency_id),
-                        "address" => $properties[$i]->street_text,
-                        "house_flat" => $properties[$i]->house_number."/".$properties[$i]->flat_number,
-                        "floor" => $properties[$i]->floor_from."/".$properties[$i]->floors_count,
-                        "rooms" => $properties[$i]->rooms_count,
-                        "home_size" => $properties[$i]->home_size,
-                        "card_id" => $properties[$i]->id,
-                        "external_id_key" => 'external_id_'.$suffix,
-                        "external_id_value" => $decoded['external_id_'.$suffix],
-                        "need_to_update" => $properties[$i]->price != $decoded["price"] || $properties[$i]->last_updated < time()-5184000 ? true : false
+                if (count($properties) > 0){
+                    $message = [
+                        "message" => "card_already_exist", 
+                        "date" => $properties[0]->last_updated,
+                        "price" => $properties[0]->price.' '.$currency->getSymbolCode($properties[0]->currency_id),
+                        "address" => $properties[0]->street_text,
+                        "house_flat" => $properties[0]->house_number."/".$properties[0]->flat_number,
+                        "floor" => $properties[0]->floor_from,
+                        "card_id" => $properties[0]->id,
+                        "need_to_update" => $agency->getId() == 1 && ($properties[0]->price != $decoded["price"] || $properties[0]->last_updated < time()-5184000) ? true : false
                     ];
-                    array_push($cards_data, $card_data);
+
+                    $res = PropertyExternal::createLink($properties[0], $decoded['external_id_'.$suffix]);
+
+                    throw new Exception(json_encode($message), 405);
                 }
-                
-                $message = [
-                    "message" => "same_phone_card_exist", 
-                    "cards_data" => $cards_data
-                ];
-                
-                throw new Exception(json_encode($message), 406);
+
+                //############### проверяем есть ли карточка с таким номером тел. и ценой в стоке или агентстве ############### //
+                $phone_exploded = $utils->explodePhone($decoded["contact1"]);
+                $query = DB::createQuery()
+                        ->select('id, last_updated, price, street_text, house_number, flat_number, floor_from, rooms_count, home_size, floors_count, currency_id, external_id, external_id_hex, external_id_winwin')
+                        ->where('(contact1 REGEXP ? OR contact2 REGEXP ? OR contact3 REGEXP ? OR contact4 REGEXP ?) AND stock = 1 AND temporary = 0 AND deleted = 0'); 
+                $properties = Property::getList($query, [$phone_exploded, $phone_exploded, $phone_exploded, $phone_exploded]);
+
+                if (count($properties) > 0){
+                    $cards_data = [];
+
+                    for ($i = 0; $i < count($properties); $i++){
+                        $card_data = [
+                            "date" => $properties[$i]->last_updated,
+                            "price" => $properties[$i]->price.' '.$currency->getSymbolCode($properties[$i]->currency_id),
+                            "address" => $properties[$i]->street_text,
+                            "house_flat" => $properties[$i]->house_number."/".$properties[$i]->flat_number,
+                            "floor" => $properties[$i]->floor_from."/".$properties[$i]->floors_count,
+                            "rooms" => $properties[$i]->rooms_count,
+                            "home_size" => $properties[$i]->home_size,
+                            "card_id" => $properties[$i]->id,
+                            "external_id_key" => 'external_id_'.$suffix,
+                            "external_id_value" => $decoded['external_id_'.$suffix],
+                            "need_to_update" => $properties[$i]->price != $decoded["price"] || $properties[$i]->last_updated < time()-5184000 ? true : false
+                        ];
+                        array_push($cards_data, $card_data);
+                    }
+
+                    $message = [
+                        "message" => "same_phone_card_exist", 
+                        "cards_data" => $cards_data
+                    ];
+
+                    throw new Exception(json_encode($message), 406);
+                }
             }
 
             //###################################################################################### //

@@ -385,7 +385,13 @@ function Yad2(){
         }
         
         collector.showPreview();*/
-        collector.createProperty(values);
+        
+        if (creating_property_anyway){
+            collector.createPropertyAnyway(values);
+        }
+        else{
+            collector.createProperty(values);
+        }
     };
     
     this.TryParseFrameValue = function(source, name){

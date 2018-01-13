@@ -1,5 +1,10 @@
 <?php
 
+function buildertmp_removeexternal(){
+    global $buildertmp;
+    return $buildertmp->removeExternalProperty($_POST["external_id"]);
+}
+
 function buildertmp_getexist(){
     global $buildertmp;
     return $buildertmp->getExist($_POST["ids"], $_POST["collector"]);
@@ -27,7 +32,7 @@ function buildertmp_updateproperty(){
 
 function buildertmp_createproperty(){
     global $buildertmp;
-    return $buildertmp->createProperty($_POST["data"]);
+    return $buildertmp->createProperty($_POST["data"], $_POST["check_existing"]);
 }
 
 function buildertmp_createclient(){

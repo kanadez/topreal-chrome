@@ -36,7 +36,8 @@ function Collector(){
         $('#try_collector_button').text(localization.getVariable("pls_wait"));
         
         $.post(host+"/api/buildertmp/createproperty.json",{
-            data: JSON.stringify(data)
+            data: JSON.stringify(data),
+            check_existing: 1
         },function (response){
             $('#try_collector_button, .ui-dialog-titlebar-close').attr("disabled", false);
             $('#try_collector_button').text(localization.getVariable("collector_create_card"));
@@ -172,6 +173,26 @@ function Collector(){
                         }
                     );*/
                 }
+            }
+            else{
+                collector.current.onCreatePropertySuccess(response);
+            }
+        });
+    };
+    
+    this.createPropertyAnyway = function(data){
+        $('#try_collector_button, .ui-dialog-titlebar-close').attr("disabled", true);
+        $('#try_collector_button').text(localization.getVariable("pls_wait"));
+        
+        $.post(host+"/api/buildertmp/createproperty.json",{
+            data: JSON.stringify(data),
+            check_existing: 0
+        },function (response){
+            $('#try_collector_button, .ui-dialog-titlebar-close').attr("disabled", false);
+            $('#try_collector_button').text(localization.getVariable("collector_create_card"));
+            
+            if (response.error != undefined){
+                $('#same_phone_card_exist_error_span').show();
             }
             else{
                 collector.current.onCreatePropertySuccess(response);
