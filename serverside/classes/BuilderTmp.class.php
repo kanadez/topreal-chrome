@@ -226,13 +226,17 @@ class BuilderTmp{
                     $message = [
                         "message" => "card_already_exist", 
                         "date" => $properties[0]->last_updated,
-                        "price" => $properties[0]->price.' '.$currency->getSymbolCode($properties[0]->currency_id),
+                        "price" => $decoded["price"].' '.$currency->getSymbolCode($properties[0]->currency_id),
                         "address" => $properties[0]->street_text,
                         "house_flat" => $properties[0]->house_number."/".$properties[0]->flat_number,
                         "floor" => $properties[0]->floor_from,
                         "card_id" => $properties[0]->id,
-                        "need_to_update" => $agency->getId() == 1 && ($properties[0]->price != $decoded["price"] || $properties[0]->last_updated < time()-5184000) ? true : false
+                        "need_to_update" => false
                     ];
+                    
+                    if ($agency->getId() == 1 && $properties[0]->price != $decoded["price"]){
+                        $this->updateProperty($properties[0]->id, $decoded["price"]);
+                    }
 
                     $res = PropertyExternal::createLink($properties[0], $decoded['external_id_'.$suffix]);
 
@@ -261,7 +265,7 @@ class BuilderTmp{
                             "card_id" => $properties[$i]->id,
                             "external_id_key" => 'external_id_'.$suffix,
                             "external_id_value" => $decoded['external_id_'.$suffix],
-                            "need_to_update" => $properties[$i]->price != $decoded["price"] || $properties[$i]->last_updated < time()-5184000 ? true : false
+                            "need_to_update" => $properties[$i]->price != $decoded["price"] ? true : false
                         ];
                         array_push($cards_data, $card_data);
                     }

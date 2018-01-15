@@ -42,6 +42,10 @@ function WinWin(){
         "₽": "RUB"
     };
     
+    this.onSearchPage = function(){
+        return this.onAdsPage();
+    };
+    
     this.onAdsPage = function(){
         if (location.origin === "https://www.winwin.co.il" && this.pth[1] == "RealEstate" && this.pth[3] == "Ads"){
             return true;
@@ -88,7 +92,12 @@ function WinWin(){
             //console.log(this.collectFromClient());
         }
         else{ // во всех остальных случаях - недвижимость
-            collector.createProperty(this.collectFromProperty());
+            if (creating_property_anyway){
+                collector.createPropertyAnyway(this.collectFromProperty());
+            }
+            else{
+                collector.createProperty(this.collectFromProperty());
+            }
         }
         
         /*for (var key in values){
@@ -765,6 +774,14 @@ function WinWin(){
     };
     
     this.onCreatePropertySuccess = function(response){
-        location.href = host+"/property?id="+response+"&mode=collected";
+        $('#card_create_success_dialog').show().dialog({
+            width: 300,
+            height: 250,
+            dialogClass: 'buttons_dialog',
+            position: { my: "center", at: "center", of: window },
+            beforeClose: function( event, ui ) {
+                $('#card_create_success_dialog').hide();
+            }
+        });
     };
 }
