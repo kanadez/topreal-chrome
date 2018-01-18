@@ -1,5 +1,5 @@
 // код, выполняемый на каждой отедльной веб-странице
-var test_mode = 0;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
+var test_mode = 1;  //  режим тестирования. если включен, работа происходит с dev.topreal.top. если нет - topreal.
 var host = test_mode === 1 ? "http://dev.topreal.top" : "https://topreal.top";
 var localization = new Localization();
 var utils = new Utils();
@@ -113,8 +113,7 @@ function startExtension(){
             <span id="user_message_span"><span locale="open_phone_and_click">Откройте номер телефона и нажмите:</span></span>\n\
             <button class="builder_button" id="try_collector_button" locale="collector_create_card">Создать карточку</button>\n\
             <span id="no_phone_alert_span" style="color:yellow;display:none;font-size:0.8em;" locale="collector_msg2"></span>\n\
-            <button class="builder_button" style="display:none;font-size:0.8em;" id="not_actual_property_button" locale="property_not_actual">Недвижимость неактуальна</button>\n\
-            <button class="builder_button" style="display:none;font-size:0.8em;" id="property_not_exist_button" locale="property_not_exist">Нужная недвижимость отсутствует</button>\n\
+            <button class="builder_button" style="display:none;font-size:0.8em;" id="not_actual_property_button" locale="property_not_exist">Нужная недвижимость отсутствует</button>\n\
             <p></p><span style="font-size:0.8em;" locale="collector_msg3"></span>\n\
             <button class="builder_button" id="restart_collector_button" locale="restart_collector">Перезапустить сборщик</button>\n\
             <a style="display:none" id="collector_locale_download_a" href="'+host+'/storage/collector_locale.csv" style="display:none;">Download collector locale</a>\n\
@@ -198,7 +197,7 @@ function startExtension(){
         
         $('#user_message_span').html('<span style="font-size:1.5em; width:100%; display:block;" locale="select_property_from_list">Выберите недвижимость из списка</span><br><span locale="it_ll_open_in_new_tab">Она откроется в новой вкладке</span>');
         $('#try_collector_button').hide();
-        $('#not_actual_property_button, #property_not_exist_button').show();
+        $('#not_actual_property_button').show();
         
         $.post(host+"/api/buildertmp/getstatforagent.json", {}, function (response){
             if (response != -1){
@@ -257,11 +256,6 @@ function startExtension(){
             chrome.runtime.sendMessage({action: "close_current_tab"});
         });
     });
-    
-    $('#property_not_exist_button').click(function(){
-        chrome.runtime.sendMessage({action: "close_current_tab"});
-    });
-    
     
     $('#create_new_card_anyway_button').click(function(){
         $('#create_new_card_anyway_button').attr("disabled", true).text("Подождите...");

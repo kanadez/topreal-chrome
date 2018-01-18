@@ -554,8 +554,8 @@ function Yad2(){
     };
     
     this.afterLoad = function(){
-       if (this.onSearchPage()){
-           $('\
+        if (this.onSearchPage()){
+            $('\
                 #search_form,\n\
                 #menu_strip,\n\
                 #menu,\n\
@@ -570,7 +570,17 @@ function Yad2(){
                 #media_container,\n\
                 #linkOverlay\n\
             ').remove();
-       }
+        }
+       
+        if (getUrlParameter("city_street") != null && getUrlParameter("city_street") != undefined){
+            var text_to_find = decodeURI(getUrlParameter("city_street"));
+
+            $('.main_table td').each(function(){
+                if ($(this).text().trim().indexOf(text_to_find) != -1){
+                $(this).parent().children('td').css("background-color", "#98da98")
+                }
+            });
+        }
     };
     
     this.advStyle = function(){
