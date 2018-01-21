@@ -231,6 +231,7 @@ function startExtension(){
         //    });
         //chrome.runtime.sendMessage({action: "close_current_tab"});
         $('.ui-dialog[aria-describedby=card_exist_dialog], .ui-dialog[aria-describedby=same_phone_card_dialog]').hide();
+        chrome.runtime.sendMessage({action: "close_current_tab"});
     });
     
     $('#close_create_success_dialog_button').click(function(){
@@ -239,6 +240,7 @@ function startExtension(){
     
     $('#close_existing_card_ext_button').click(function(){
         $('.ui-dialog[aria-describedby=card_exist_ext_dialog]').hide();
+        chrome.runtime.sendMessage({action: "close_current_tab"});
     });
     
     $('#close_not_auth_dialog_button').click(function(){

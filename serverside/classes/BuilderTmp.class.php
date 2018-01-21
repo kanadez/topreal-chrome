@@ -245,11 +245,14 @@ class BuilderTmp{
                 }
 
                 //############### проверяем есть ли карточка с таким номером тел. и ценой в стоке или агентстве ############### //
+                $ascription = $decoded["ascription"] == "sale" ? 0 : 1;
+                $city = str_replace('"', "", $this->getPlaceIdByAddress($decoded["city"]." ".$decoded["country"]));
+                $city_text = Geo::getFullAddress($city);
                 $phone_exploded = $utils->explodePhone($decoded["contact1"]);
                 $query = DB::createQuery()
                         ->select('id, last_updated, price, street_text, house_number, flat_number, floor_from, rooms_count, home_size, floors_count, currency_id, external_id, external_id_hex, external_id_winwin')
-                        ->where('(contact1 REGEXP ? OR contact2 REGEXP ? OR contact3 REGEXP ? OR contact4 REGEXP ?) AND stock = 1 AND temporary = 0 AND deleted = 0'); 
-                $properties = Property::getList($query, [$phone_exploded, $phone_exploded, $phone_exploded, $phone_exploded]);
+                        ->where('(city = ? OR city_text = ?) AND ascription = ? AND (contact1 REGEXP ? OR contact2 REGEXP ? OR contact3 REGEXP ? OR contact4 REGEXP ?) AND stock = 1 AND temporary = 0 AND deleted = 0'); 
+                $properties = Property::getList($query, [$city, $city_text, $ascription, $phone_exploded, $phone_exploded, $phone_exploded, $phone_exploded]);
 
                 if (count($properties) > 0){
                     $cards_data = [];
