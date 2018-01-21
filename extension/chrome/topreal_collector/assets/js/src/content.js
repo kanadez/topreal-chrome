@@ -141,7 +141,7 @@ function startExtension(){
             <br><span locale="floor_label">Этаж</span>:&nbsp;<span id="existing_card_collect_floor_span"></span>\n\
             <p></p><button locale="open_existing_card_ext_button" style="float:right;margin-bottom:10px;" id="open_existing_card_button">Открыть на TopReal</button>\n\
             <br><p></p><button locale="exit" style="float:right;margin-left:10px;" id="close_existing_card_button">Выход</button>\n\
-            <button locale="update_card" style="float:right;display:none;" id="update_existing_card_button">Обновить карточку</button>\n\
+            <!--<button locale="update_card" style="float:right;display:none;" id="update_existing_card_button">Обновить карточку</button>-->\n\
         </div>\n\
         <div id="same_phone_card_dialog" locale_title="warning_h4" title="Внимание" style="display:none;">\n\
             <span id="same_phone_card_exist_error_span" style="display:none;color:red;" locale="card_already_exist_error">Что-то пошло не так. Обновите страницу и попробуйте заново.</span>\n\
@@ -183,7 +183,7 @@ function startExtension(){
             <br><span locale="floor_label">Этаж</span>:&nbsp;<span id="existing_card_ext_floor_span"></span>\n\
             <br><span locale="rooms_label">Комнаты</span>:&nbsp;<span id="existing_card_ext_rooms_span"></span>\n\
             <p></p><button style="float:right;margin-left:10px;" id="close_existing_card_ext_button">OK</button>\n\
-            <button locale="update_card" style="float:right;display:none;" id="update_existing_card_ext_button">Обновить карточку</button>\n\
+            <!--<button locale="update_card" style="float:right;display:none;" id="update_existing_card_ext_button">Обновить карточку</button>-->\n\
             <button style="float:right;margin:0 10px;" id="open_existing_card_ext_button" locale="open_existing_card_ext_button">Открыть на TopReal</button>\n\
         </div>' 
     ).css("cursor","default");

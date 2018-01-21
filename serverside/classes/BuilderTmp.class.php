@@ -28,8 +28,9 @@ class BuilderTmp{
                 unset($ids_decoded[$i]);
             }
             else{
-                if ($agency->getId() == 1 && ((trim($ids_decoded[$i][1]) != "" && $property->price != $ids_decoded[$i][1]) || $property->last_updated < time()-5184000)){
-                    $ids_decoded[$i] = [$ids_decoded[$i][0], true, $property->last_updated, $property->price, $property->id, $property->street_text, $property->floor_from, $property->rooms_count];
+                if ($agency->getId() == 1 && ((trim($ids_decoded[$i][1]) != "" && $property->price != $ids_decoded[$i][1]) )){
+                    $this->updatePropertyExternal($ids_decoded[$i][0], $ids_decoded[$i][1], $collector);
+                    $ids_decoded[$i] = [$ids_decoded[$i][0], false, $property->last_updated, $property->price, $property->id, $property->street_text, $property->floor_from, $property->rooms_count];
                 }
                 else{
                     $ids_decoded[$i] = [$ids_decoded[$i][0], false, $property->last_updated, $property->price, $property->id, $property->street_text, $property->floor_from, $property->rooms_count];
