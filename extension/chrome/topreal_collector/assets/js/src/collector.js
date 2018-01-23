@@ -118,6 +118,8 @@ function Collector(){
                     /*if (collector.current.TryParseFramePrice($(document).children().html()).length > 0){
                         $('#update_same_phone_card_button').show();
                     }*/
+                
+                    collector.current.getStreetTranslation();
                     
                     $('#same_phone_card_dialog').show().dialog({
                         width: 600,

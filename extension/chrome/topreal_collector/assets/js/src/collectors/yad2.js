@@ -747,4 +747,17 @@ function Yad2(){
         //chrome.runtime.sendMessage({action: "open_yad2_newad", url: host+"/property?id="+response+"&mode=collected"});
         //chrome.runtime.sendMessage({action: "close_current_tab"});
     };
+    
+    this.getStreetTranslation = function(){
+        var frameElem = $(document).children().html();
+        var street = this.TryParseFrameValue(frameElem, "כתובת:");
+        var city = this.TryParseFrameValue(frameElem, "ישוב:");
+        var country = "ישראל";
+        
+        $.post(host+"/api/buildertmp/getaddressbytext.json", {
+            address: street+" "+city+" "+country
+        }, function (response){
+            $('.address_translated').text(response);
+        });
+    };
 }

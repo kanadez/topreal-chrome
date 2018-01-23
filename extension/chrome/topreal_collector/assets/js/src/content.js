@@ -147,6 +147,7 @@ function startExtension(){
             <span id="same_phone_card_exist_error_span" style="display:none;color:red;" locale="card_already_exist_error">Что-то пошло не так. Обновите страницу и попробуйте заново.</span>\n\
             <span id="same_phone_card_exist_success_span" style="display:none;" locale="card_already_exist_success">Карточка успешно обновлена. Нажмите "Выход".</span>\n\
             <span locale="same_phone_card_exist"></span>\n\
+            <br><span locale="address"></span>&nbsp;<span class="address_translated"></span>\n\
             <table id="same_phone_card_exist_table">\n\
                 <thead>\n\
                     <th locale="date_label"></th>\n\

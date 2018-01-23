@@ -1,5 +1,10 @@
 <?php
 
+function buildertmp_getaddressbytext(){
+    global $buildertmp;
+    return $buildertmp->getAddressTranslation($_POST["address"]);
+}
+
 function buildertmp_removeexternal(){
     global $buildertmp;
     return $buildertmp->removeExternalProperty($_POST["external_id"]);

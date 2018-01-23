@@ -1059,6 +1059,13 @@ class BuilderTmp{
         return $response;
     }
     
+    public function getAddressTranslation($address){
+        $geo = new Geo;
+        
+        $parsed = $geo->getPlaceIdByAddress($address);
+        return Geo::getFullAddress($parsed);
+    }
+    
     protected function getPlaceIdByAddress($address){
         global $googleac;
     
