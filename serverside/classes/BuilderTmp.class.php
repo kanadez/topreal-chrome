@@ -12,6 +12,8 @@ class BuilderTmp{
     public function getExist($ids, $collector){
         global $agency;
         
+        return json_decode([]); // закрываем временно работу функции
+        
         $ids_decoded = json_decode($ids);
         
         for ($i = 0; $i < count($ids_decoded); $i++){

@@ -572,21 +572,12 @@ function Yad2(){
             ').remove();
         }
        
-        if (getUrlParameter("city_street") != "null" && getUrlParameter("city_street") != null && getUrlParameter("city_street") != undefined){
-            var text_to_find = decodeURI(getUrlParameter("city_street"));
-            var tr_id = null;
+        if (getUrlParameter("external_id") != "null" && getUrlParameter("external_id") != null && getUrlParameter("external_id") != undefined){
+            var tr_id = getUrlParameter("external_id");
             var tr_id_next = null;
             
-            $('.main_table td').each(function(){
-                if ($(this).text().trim().indexOf(text_to_find) != -1){
-                    $(this).parent().children('td').css("background-color", "#98da98");
-                    
-                    if (tr_id == null){
-                        tr_id = $(this).parent().attr("id");
-                        tr_id_next = $('#'+tr_id+' + tr').attr("id");
-                    }
-                }
-            });
+            $('#'+tr_id).children('td').css("background-color", "#98da98");
+            tr_id_next = $('#'+tr_id+" + tr").attr("id");
             
             $('.main_table tr').each(function(){
                 if ($(this).attr("id") != tr_id && $(this).attr("id") != tr_id_next){
