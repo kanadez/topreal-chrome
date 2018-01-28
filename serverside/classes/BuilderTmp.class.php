@@ -30,7 +30,7 @@ class BuilderTmp{
                 unset($ids_decoded[$i]);
             }
             else{
-                if ($agency->getId() == 1 && ((trim($ids_decoded[$i][1]) != "" && $property->price != $ids_decoded[$i][1]) )){
+                if ($agency->getId() == 1 && trim($ids_decoded[$i][1]) != ""){
                     $this->updatePropertyExternal($ids_decoded[$i][0], $ids_decoded[$i][1], $collector);
                     $ids_decoded[$i] = [$ids_decoded[$i][0], false, $property->last_updated, $property->price, $property->id, $property->street_text, $property->floor_from, $property->rooms_count];
                 }
@@ -237,11 +237,11 @@ class BuilderTmp{
                         "need_to_update" => false
                     ];
                     
-                    if ($agency->getId() == 1 && $properties[0]->price != $decoded["price"]){
+                    if ($agency->getId() == 1){
                         $this->updateProperty($properties[0]->id, $decoded["price"]);
                     }
 
-                    $res = PropertyExternal::createLink($properties[0], $decoded['external_id_'.$suffix]);
+                    PropertyExternal::createLink($properties[0], $decoded['external_id_'.$suffix]);
 
                     throw new Exception(json_encode($message), 405);
                 }
