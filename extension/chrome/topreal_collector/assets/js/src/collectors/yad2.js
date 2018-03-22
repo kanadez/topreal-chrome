@@ -155,11 +155,11 @@ function Yad2(){
             values["remarks_text"] += "סוג הנכס: "+"אולמות"+"\n";
         }
         else if (utils.stringContains(value, "בניין משרדים")){
-            value = "other";
+            value = "office";
             values["remarks_text"] += "סוג הנכס: "+"בניין משרדים"+"\n";
         }
         else if (utils.stringContains(value, "חנויות/שטח מסחרי")){
-            value = "other";
+            value = "store";
             values["remarks_text"] += "סוג הנכס: "+"חנויות/שטח מסחרי"+"\n";
         }
         else if (utils.stringContains(value, "חניון")){
@@ -167,11 +167,11 @@ function Yad2(){
             values["remarks_text"] += "סוג הנכס: "+"חניון"+"\n";
         }
         else if (utils.stringContains(value, "מבני תעשיה")){
-            value = "other";
+            value = "commercial";
             values["remarks_text"] += "סוג הנכס: "+"מבני תעשיה"+"\n";
         }
         else if (utils.stringContains(value, "מחסנים")){
-            value = "other";
+            value = "warehouse";
             values["remarks_text"] += "סוג הנכס: "+"מחסנים"+"\n";
         }
         else if (utils.stringContains(value, "מרתף")){
@@ -179,11 +179,11 @@ function Yad2(){
             values["remarks_text"] += "סוג הנכס: "+"מרתף"+"\n";
         }
         else if (utils.stringContains(value, "משק חקלאי")){
-            value = "other";
+            value = "farm";
             values["remarks_text"] += "סוג הנכס: "+"משק חקלאי"+"\n";
         }
         else if (utils.stringContains(value, "משרדים")){
-            value = "other";
+            value = "office";
             values["remarks_text"] += "סוג הנכס: "+"משרדים"+"\n";
         }
         else if (utils.stringContains(value, "נחלה")){
@@ -191,7 +191,7 @@ function Yad2(){
             values["remarks_text"] += "סוג הנכס: "+"נחלה"+"\n";
         }
         else if (utils.stringContains(value, "עסקים למכירה")){
-            value = "other";
+            value = "commercial";
             values["remarks_text"] += "סוג הנכס: "+"עסקים למכירה"+"\n";
         }
         else if (utils.stringContains(value, "קליניקות")){
