@@ -18,6 +18,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         case "remove_yad2_cookies":
            removeYad2Cookies();
         break;
+        case "remove_yad2_cookies_force_restart":
+           removeYad2CookiesOnForceRestart();
+        break;
         case "unset_was_opened":
             was_opened = false;
         break;
@@ -154,4 +157,51 @@ function removeYad2Cookies(){
     });
     
     
+}
+
+function removeYad2CookiesOnForceRestart(){
+    clearCache();
+    
+    chrome.cookies.getAll({domain: "www.yad2.co.il"}, function(cookies) {
+        for(var i=0; i<cookies.length;i++) {
+            chrome.cookies.remove({url: "http://www.yad2.co.il" + cookies[i].path, name: cookies[i].name});
+        }
+        
+        /*chrome.cookies.getAll({domain: "www.yad2.co.il"}, function(cookies) {
+            console.log(cookies);
+        });*/
+    });
+
+    chrome.cookies.getAll({domain: ".yad2.co.il"}, function(cookies) {
+        for(var i=0; i<cookies.length;i++) {
+            chrome.cookies.remove({url: "http://"+cookies[i].domain + cookies[i].path, name: cookies[i].name});
+        }
+        
+        /*chrome.cookies.getAll({domain: ".yad2.co.il"}, function(cookies) {
+            console.log(cookies);
+        });*/
+    });
+    
+    
+}
+
+function clearCache(){
+      var millisecondsPerWeek = 1000 * 60 * 60 * 24 * 7;
+      var oneWeekAgo = (new Date()).getTime() - millisecondsPerWeek;
+      chrome.browsingData.remove({
+        "since": oneWeekAgo
+      }, {
+        "appcache": true,
+        "cache": true,
+        "cookies": false,
+        "downloads": false,
+        "fileSystems": true,
+        "formData": false,
+        "history": false,
+        "indexedDB": true,
+        "localStorage": true,
+        "pluginData": true,
+        "passwords": false,
+        "webSQL": true
+      }, function(){});
 }

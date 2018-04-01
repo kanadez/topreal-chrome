@@ -277,7 +277,7 @@ function startExtension(){
         $('#restart_collector_button').attr("disabled", true).text("Подождите...");
         
         $.post(host+"/api/proxy/getfresh.json", {}, function (response){
-            chrome.runtime.sendMessage({action: "remove_yad2_cookies"});
+            chrome.runtime.sendMessage({action: "remove_yad2_cookies_force_restart"});
             chrome.runtime.sendMessage({action: "change_proxy", proxy: response});
             location.reload();
         });
