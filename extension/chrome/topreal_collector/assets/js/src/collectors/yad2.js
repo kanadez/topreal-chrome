@@ -1,4 +1,6 @@
 function Yad2(){
+    this.values_for_compare = null;
+    
     this.onAdsPage = function(){
         if (location.origin === "http://www.yad2.co.il" && (location.pathname === "/Nadlan/salesDetails.php" || location.pathname === "/Nadlan/rentDetails.php" || location.pathname === "/Nadlan/businessDetails.php")){
             chrome.runtime.sendMessage({action: "remove_yad2_cookies"});
@@ -386,6 +388,8 @@ function Yad2(){
         
         collector.showPreview();*/
         
+        this.values_for_compare = values;
+        
         if (creating_property_anyway){
             collector.createPropertyAnyway(values);
         }
@@ -748,7 +752,39 @@ function Yad2(){
         $.post(host+"/api/buildertmp/getaddressbytext.json", {
             address: street+" "+city+" "+country
         }, function (response){
-            $('.address_translated').text(response);
+            $('.address_translated').text(response);            
+        });
+        
+        $.post(host+"/api/buildertmp/getaddressbytext.json", {
+            address: street.replace(/\d+/g, "")+" "+city+" "+country
+        }, function (response){
+            var address = response;
+            
+            for (var i = 0; i < collector.cards_obj.length; i++){
+                if (collector.cards_obj[i].address == address){
+                    if (
+                            collector.cards_obj[i].house_flat.split("/")[0] == collector.current.values_for_compare.house_number &&
+                            (
+                                collector.cards_obj[i].floor.split("/")[0] == collector.current.values_for_compare.floor_from ||
+                                (collector.cards_obj[i].floor.split("/")[0] == 0 && collector.current.values_for_compare.floor_from == "קרקע")
+                            ) &&
+                            (
+                                collector.cards_obj[i].floor.split("/")[1] == collector.current.values_for_compare.floors_count ||
+                                (utils.isUndf(collector.cards_obj[i].floor.split("/")[1]) && utils.isUndf(collector.current.values_for_compare.floors_count))
+                            ) &&
+                            collector.cards_obj[i].rooms == collector.current.values_for_compare.rooms_count &&
+                            collector.cards_obj[i].home_size == collector.current.values_for_compare.home_size
+                    ){
+                        collector.updateSamePhone(collector.cards_obj[i].external_id_key, collector.cards_obj[i].external_id_value, collector.cards_obj[i].card_id);
+                    }
+                    else{
+                        collector.createOnSamePhone();
+                    }
+                }
+                else{
+                    collector.createOnSamePhone();
+                }
+            }
         });
     };
 }

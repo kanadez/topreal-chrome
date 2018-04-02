@@ -50,4 +50,8 @@ function Utils(){
     this.numberWithCommas = function(x) { // разделение числа x запятыми через каждые 3 разряда
         return x.toString().trim().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     };
+    
+    this.isUndf = function(x){
+        return String(x).length == 0 || x == undefined;
+    };
 }

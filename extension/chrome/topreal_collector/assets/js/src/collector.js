@@ -1,5 +1,6 @@
 function Collector(){
     this.current = null;
+    this.cards_obj = null;
     
     switch (location.origin){
         case "http://www.yad2.co.il":
@@ -94,6 +95,7 @@ function Collector(){
                 else if (response.error.code == 406){
                     var obj = JSON.parse(response.error.description);
                     var cards_obj = obj.cards_data;
+                    collector.cards_obj = obj.cards_data;
                     $('#same_phone_card_exist_table tbody').html("");
                     
                     for (var i = 0; i < cards_obj.length; i++){
@@ -106,7 +108,7 @@ function Collector(){
                                 <td>"+cards_obj[i].floor+"</td>\n\
                                 <td>"+cards_obj[i].rooms+"</td>\n\
                                 <td>"+cards_obj[i].home_size+"</td>\n\
-                                <td><button class='same_phone_card_update_button' data-external-id-key='"+cards_obj[i].external_id_key+"' data-external-id-value='"+cards_obj[i].external_id_value+"' data-card-id='"+cards_obj[i].card_id+"'>↺</button></td>\n\
+                                <td><button class='same_phone_card_update_button' id='same_phone_card_update_"+cards_obj[i].card_id+"' data-external-id-key='"+cards_obj[i].external_id_key+"' data-external-id-value='"+cards_obj[i].external_id_value+"' data-card-id='"+cards_obj[i].card_id+"'>↺</button></td>\n\
                             </tr>"
                         );
                         
@@ -285,4 +287,32 @@ function Collector(){
         });
     };
     
+    this.updateSamePhone = function(external_id_key, external_id_value, card_id){
+        var arrayVals = this.current.TryParseFramePrice($(document).children().html()).split(' ');
+        var price_parsed = arrayVals[0].replace(/\D/g, "");
+
+        $('#same_phone_card_update_'+card_id).text("...").attr("disabled", true);
+        $.post(host+"/api/buildertmp/updateproperty.json",{
+            id: card_id,
+            new_price: price_parsed,
+            external_id_key: external_id_key,
+            external_id_value: external_id_value
+        },function (response){
+            if (response.error != undefined){
+                $('#same_phone_card_dialog>*').hide();
+                $('#same_phone_card_exist_error_span').show();
+            }
+            else{
+                $('#same_phone_card_dialog>*').hide();
+                $('#same_phone_card_exist_success_span, #close_same_phone_card_button, #same_phone_card_dialog>p').show();
+            }
+        });
+    };
+    
+    this.createOnSamePhone = function(){
+        $('#create_new_card_anyway_button').attr("disabled", true).text("Подождите...");
+        $('.same_phone_card_update_button').attr("disabled", true);
+        creating_property_anyway = true;
+        this.checkSession();
+    };
 }
