@@ -54,4 +54,22 @@ function Utils(){
     this.isUndf = function(x){
         return String(x).length == 0 || x == undefined;
     };
+    
+    this.about = function(a, b){
+        if (a >= b*0.7 && a <= b*1.3){ // 52 >= 40.6 && 52 <= 75.4
+            return true;
+        }
+        else{
+            return false;
+        }
+    };
+    
+    this.aboutRooms = function(a, b){
+        if (a >= b-0.5 && a <= b+0.5){
+            return true;
+        }
+        else{
+            return false;
+        }
+    };
 }

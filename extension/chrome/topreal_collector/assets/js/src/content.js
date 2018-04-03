@@ -210,6 +210,14 @@ function startExtension(){
                 $('#user_message_span').append('<br><span locale="updated_total">Обновлено всего</span>:&nbsp;<span id="">'+response[5]+'</span>');
             }
         });
+        
+        if ($('.no_ads_title').length > 0 && $('.main_table').length > 0){
+            $.post(host+"/api/buildertmp/removeexternal.json", {
+                external_id: getUrlParameter("topreal_external_property")
+            }, function (response){
+                chrome.runtime.sendMessage({action: "close_current_tab"});
+            });
+        }
     }
     
     document.body.onclick = function(ev){

@@ -580,7 +580,7 @@ function Yad2(){
             var tr_id = getUrlParameter("external_id");
             var tr_id_next = null;
             
-            $('#'+tr_id).children('td').css("background-color", "#98da98");
+            $('#'+tr_id).children('td').css("background-color", "#98da98").addClass("boohoo");
             tr_id_next = $('#'+tr_id+" + tr").attr("id");
             
             $('.main_table tr').each(function(){
@@ -588,6 +588,14 @@ function Yad2(){
                     $(this).remove();
                 }
             });
+            
+            if ($('.boohoo').length == 0 && $('.main_table').length > 0){
+                $.post(host+"/api/buildertmp/removeexternal.json", {
+                    external_id: getUrlParameter("topreal_external_property")
+                }, function (response){
+                    chrome.runtime.sendMessage({action: "close_current_tab"});
+                });
+            }
         }
     };
     
@@ -763,7 +771,10 @@ function Yad2(){
             for (var i = 0; i < collector.cards_obj.length; i++){
                 if (collector.cards_obj[i].address == address){
                     if (
-                            collector.cards_obj[i].house_flat.split("/")[0] == collector.current.values_for_compare.house_number &&
+                            (
+                                collector.cards_obj[i].house_flat.split("/")[0] == collector.current.values_for_compare.house_number ||
+                                utils.isUndf(collector.current.values_for_compare.house_number)
+                            ) &&
                             (
                                 collector.cards_obj[i].floor.split("/")[0] == collector.current.values_for_compare.floor_from ||
                                 (collector.cards_obj[i].floor.split("/")[0] == 0 && collector.current.values_for_compare.floor_from == "קרקע")
@@ -775,6 +786,9 @@ function Yad2(){
                             collector.cards_obj[i].rooms == collector.current.values_for_compare.rooms_count &&
                             collector.cards_obj[i].home_size == collector.current.values_for_compare.home_size
                     ){
+                        collector.updateSamePhone(collector.cards_obj[i].external_id_key, collector.cards_obj[i].external_id_value, collector.cards_obj[i].card_id);
+                    }
+                    else if (utils.aboutRooms(collector.cards_obj[i].rooms, collector.current.values_for_compare.rooms_count) && utils.about(collector.cards_obj[i].home_size, collector.current.values_for_compare.home_size)){ // если есть небольшие отличия
                         collector.updateSamePhone(collector.cards_obj[i].external_id_key, collector.cards_obj[i].external_id_value, collector.cards_obj[i].card_id);
                     }
                     else{
