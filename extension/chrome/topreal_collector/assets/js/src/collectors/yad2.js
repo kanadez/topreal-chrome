@@ -747,6 +747,7 @@ function Yad2(){
                 $('#card_create_success_dialog').hide();
             }
         });
+        setTimeout(closeCurrentTab, 500);
         //chrome.runtime.sendMessage({action: "open_yad2_newad", url: host+"/property?id="+response+"&mode=collected"});
         //chrome.runtime.sendMessage({action: "close_current_tab"});
     };
@@ -767,6 +768,9 @@ function Yad2(){
             address: street.replace(/\d+/g, "")+" "+city+" "+country
         }, function (response){
             var address = response;
+            var updated = false;
+            console.log(collector.cards_obj);
+            console.log(collector.current.values_for_compare);
             
             for (var i = 0; i < collector.cards_obj.length; i++){
                 if (collector.cards_obj[i].address == address){
@@ -783,21 +787,25 @@ function Yad2(){
                                 collector.cards_obj[i].floor.split("/")[1] == collector.current.values_for_compare.floors_count ||
                                 (utils.isUndf(collector.cards_obj[i].floor.split("/")[1]) && utils.isUndf(collector.current.values_for_compare.floors_count))
                             ) &&
-                            collector.cards_obj[i].rooms == collector.current.values_for_compare.rooms_count &&
-                            collector.cards_obj[i].home_size == collector.current.values_for_compare.home_size
+                            (
+                                collector.cards_obj[i].rooms == collector.current.values_for_compare.rooms_count ||
+                                utils.aboutRooms(collector.cards_obj[i].rooms, collector.current.values_for_compare.rooms_count)
+                            ) &&
+                            (
+                                collector.cards_obj[i].home_size == collector.current.values_for_compare.home_size ||
+                                utils.about(collector.cards_obj[i].home_size, collector.current.values_for_compare.home_size)
+                            )
                     ){
+                        //console.log(collector.cards_obj[i].external_id_key, collector.cards_obj[i].external_id_value, collector.cards_obj[i].card_id);
+                        updated = true;
                         collector.updateSamePhone(collector.cards_obj[i].external_id_key, collector.cards_obj[i].external_id_value, collector.cards_obj[i].card_id);
                     }
-                    else if (utils.aboutRooms(collector.cards_obj[i].rooms, collector.current.values_for_compare.rooms_count) && utils.about(collector.cards_obj[i].home_size, collector.current.values_for_compare.home_size)){ // если есть небольшие отличия
-                        collector.updateSamePhone(collector.cards_obj[i].external_id_key, collector.cards_obj[i].external_id_value, collector.cards_obj[i].card_id);
-                    }
-                    else{
-                        collector.createOnSamePhone();
-                    }
                 }
-                else{
-                    collector.createOnSamePhone();
-                }
+            }
+            
+            if (!updated){
+                //console.log("new");
+                collector.createOnSamePhone();
             }
         });
     };

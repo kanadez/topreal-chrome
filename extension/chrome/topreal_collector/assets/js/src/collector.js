@@ -295,6 +295,8 @@ function Collector(){
         $.post(host+"/api/buildertmp/updateproperty.json",{
             id: card_id,
             new_price: price_parsed,
+            new_rooms: collector.current.values_for_compare.rooms_count,
+            new_home_size: collector.current.values_for_compare.home_size,
             external_id_key: external_id_key,
             external_id_value: external_id_value
         },function (response){
@@ -305,6 +307,7 @@ function Collector(){
             else{
                 $('#same_phone_card_dialog>*').hide();
                 $('#same_phone_card_exist_success_span, #close_same_phone_card_button, #same_phone_card_dialog>p').show();
+                setTimeout(closeCurrentTab, 500);
             }
         });
     };
@@ -315,4 +318,8 @@ function Collector(){
         creating_property_anyway = true;
         this.checkSession();
     };
+}
+
+function closeCurrentTab(){
+    chrome.runtime.sendMessage({action: "close_current_tab"});
 }

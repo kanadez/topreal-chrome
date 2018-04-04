@@ -184,7 +184,7 @@ class BuilderTmp{
         return $property_to_update->save();
     }
     
-    public function updateProperty($id, $new_price, $external_id_key = null, $external_id_value = null){
+    public function updateProperty($id, $new_price, $new_rooms, $new_home_size, $external_id_key = null, $external_id_value = null){
         global $property;
         
         $update_event = CollectorEvent::create([
@@ -198,6 +198,8 @@ class BuilderTmp{
         $property->savePriceHistory($id, $new_price, $property_to_update->price, $property_to_update->currency_id);
         $property->setStockHistory($id, '{"price":{"old":"'.$property_to_update->price.'","new":"'.$new_price.'"}}');
         $property_to_update->price = intval($new_price);
+        $property_to_update->rooms_count = $new_rooms;
+        $property_to_update->home_size = $new_home_size;
         
         if ($external_id_key != null && $external_id_value != null){
             $property_to_update->$external_id_key = $external_id_value;
