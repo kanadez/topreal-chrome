@@ -3,6 +3,12 @@ var t = 0;
 var r = null;
 var tab_id = null;
 
+chrome.extension.onConnect.addListener(function(port) {
+    port.onMessage.addListener(function(msg){
+        resetProxy();
+    });
+});
+
 // фоновый скрипт, на котором проихсходит прием данных от content.js
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {    
     switch (request.action) {
@@ -53,6 +59,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 });
 
 chrome.proxy.onProxyError.addListener(function(d){
+    resetProxy();
+});
+
+function resetProxy(){
     var xhr = new XMLHttpRequest();
     xhr.open('POST', "http://dev.topreal.top/api/proxy/getfresh.json", true);
     xhr.send();
@@ -61,12 +71,12 @@ chrome.proxy.onProxyError.addListener(function(d){
         if (xhr.readyState != 4) {
           return false;
         }
-        
+
         if (xhr.status === 200){
             removeYad2Cookies();
-            
+
             var parsed_response = JSON.parse(xhr.responseText);
-            
+
             var config = {
                 mode: "fixed_servers",
                 rules: {
@@ -80,23 +90,16 @@ chrome.proxy.onProxyError.addListener(function(d){
             };
 
             chrome.proxy.settings.set({value: config, scope: 'regular'}, function(){});
-            
+
             chrome.tabs.getSelected(null, function(tab) {
                 var tabId = tab.id;
                 tabUrl = tabId.url;
 
                 chrome.tabs.reload(tabId, null, null);
             });
-            
-            //console.log('result', xhr.responseText);
-        }
-        else{
-            //console.log('err', xhr.responseText);
         }
     };
-    //startProxy();
-    //chrome.tabs.reload(tab_id, null, null);
-});
+}
 
 chrome.runtime.onMessageExternal.addListener(function(request, sender, sendResponse){ // listener for checking extension exist
     if (request) {

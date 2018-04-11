@@ -1,4 +1,5 @@
 function WinWin(){
+    this.values_for_compare = null;
     this.pth = location.pathname.split("/");
     this.property_types = {
         "דירה": "apartment",
@@ -304,6 +305,8 @@ function WinWin(){
                 tmp[key] = values[key];
             }
         }
+        
+        this.values_for_compare = tmp;
         
         return tmp; // возвращаем очищенный от пустых (null) ячеек массив значений
     };
@@ -781,6 +784,63 @@ function WinWin(){
             position: { my: "center", at: "center", of: window },
             beforeClose: function( event, ui ) {
                 $('#card_create_success_dialog').hide();
+            }
+        });
+    };
+    
+    this.getStreetTranslation = function(){
+        var street = this.values_for_compare.street;
+        var city = this.values_for_compare.city;
+        var country = "ישראל";
+        
+        $.post(host+"/api/buildertmp/getaddressbytext.json", {
+            address: street+" "+city+" "+country
+        }, function (response){
+            $('.address_translated').text(response);            
+        });
+        
+        $.post(host+"/api/buildertmp/getaddressbytext.json", {
+            address: (street != undefined ? street.replace(/\d+/g, "") : "")+" "+city+" "+country
+        }, function (response){
+            var address = response;
+            var updated = false;
+            console.log(collector.cards_obj);
+            console.log(collector.current.values_for_compare);
+            
+            for (var i = 0; i < collector.cards_obj.length; i++){
+                if (collector.cards_obj[i].address == address){
+                    if (
+                            (
+                                collector.cards_obj[i].house_flat.split("/")[0] == collector.current.values_for_compare.house_number ||
+                                utils.isUndf(collector.current.values_for_compare.house_number)
+                            ) &&
+                            (
+                                collector.cards_obj[i].floor.split("/")[0] == collector.current.values_for_compare.floor_from ||
+                                (collector.cards_obj[i].floor.split("/")[0] == 0 && collector.current.values_for_compare.floor_from == "קרקע")
+                            ) &&
+                            (
+                                collector.cards_obj[i].floor.split("/")[1] == collector.current.values_for_compare.floors_count ||
+                                (utils.isUndf(collector.cards_obj[i].floor.split("/")[1]) && utils.isUndf(collector.current.values_for_compare.floors_count))
+                            ) &&
+                            (
+                                collector.cards_obj[i].rooms == collector.current.values_for_compare.rooms_count ||
+                                utils.aboutRooms(collector.cards_obj[i].rooms, collector.current.values_for_compare.rooms_count)
+                            ) &&
+                            (
+                                collector.cards_obj[i].home_size == collector.current.values_for_compare.home_size ||
+                                utils.about(collector.cards_obj[i].home_size, collector.current.values_for_compare.home_size)
+                            )
+                    ){
+                        //console.log(collector.cards_obj[i].external_id_key, collector.cards_obj[i].external_id_value, collector.cards_obj[i].card_id);
+                        updated = true;
+                        collector.updateSamePhone(collector.cards_obj[i].external_id_key, collector.cards_obj[i].external_id_value, collector.cards_obj[i].card_id);
+                    }
+                }
+            }
+            
+            if (!updated){
+                //console.log("new");
+                collector.createOnSamePhone();
             }
         });
     };
