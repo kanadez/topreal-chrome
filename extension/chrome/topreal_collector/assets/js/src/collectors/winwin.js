@@ -200,7 +200,12 @@ function WinWin(){
         }*/
         
         if (values.contact1 == undefined && values.contact2 == undefined){
+            $.post(host+"/api/buildertmp/removeexternal.json", {
+                external_id: getUrlParameter("topreal_external_property")
+            }, null);
+            
             alert(localization.getVariable("no_phones_error"));
+            
             return null;
         }
         
@@ -399,6 +404,7 @@ function WinWin(){
         
         if (values.contact1 == undefined && values.contact2 == undefined){
             alert(localization.getVariable("no_phones_error"));
+            
             return null;
         }
         

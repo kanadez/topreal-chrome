@@ -357,7 +357,8 @@ class BuilderTmp{
 
                             if ($parsed != null && $parsed != "null" && $parsed != $property->city){
                                 $property->street = $parsed;
-                                $latlng = Geo::getTrueLocation($property->street, $decoded["house_number"], $decoded["statuses"]);
+                                //$latlng = Geo::getTrueLocation($property->street, $decoded["house_number"], $decoded["statuses"]);
+                                $latlng = $this->getLocation($property->street, $decoded["house_number"], $decoded["statuses"]);
                                 $property->lat = $latlng["lat"];
                                 $property->lng = $latlng["lng"];
                                 $property->street_text = Geo::getFullAddress($property->street);
@@ -772,7 +773,8 @@ class BuilderTmp{
 
                             if ($parsed != null && $parsed != $client->city){
                                 $client->street = json_encode([$parsed]);
-                                $latlng = Geo::getTrueLocation($parsed, $decoded["house_number"], $decoded["statuses"]);
+                                //$latlng = Geo::getTrueLocation($parsed, $decoded["house_number"], $decoded["statuses"]);
+                                $latlng = $this->getLocation($parsed, $decoded["house_number"], $decoded["statuses"]);
                                 $client->lat = $latlng["lat"];
                                 $client->lng = $latlng["lng"];
                                 $client->street_text = json_encode([Geo::getFullAddress($parsed)]);
@@ -1061,6 +1063,25 @@ class BuilderTmp{
         }
         
         return $response;
+    }
+    
+    private function getLocation($street, $house_number, $statuses){
+        $latlng = null;
+        $c = 0;
+        
+        if ($street != NULL){
+            while ($latlng == null && $c < 10){
+                $latlng = Geo::getTrueLocation($street, $house_number, $statuses);
+                $c++;
+                usleep(100000);
+            }
+        }
+        
+        if (!isset($latlng)){
+            $latlng = ["lat" => null, "lng" => null];
+        }
+        
+        return $latlng;
     }
     
     public function getAddressTranslation($address){
