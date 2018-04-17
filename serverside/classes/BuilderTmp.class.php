@@ -353,7 +353,7 @@ class BuilderTmp{
                     break;
                     case "street":
                         if (strlen($val) > 0){
-                            $parsed = str_replace('"', "", $this->getPlaceIdByAddress($val." ".$decoded["city"]." ".$decoded["country"]));
+                            $parsed = str_replace('"', "", $this->getStreet($val, $decoded["city"], $decoded["country"]));
 
                             if ($parsed != null && $parsed != "null" && $parsed != $property->city){
                                 $property->street = $parsed;
@@ -769,7 +769,7 @@ class BuilderTmp{
                     break;
                     case "street":
                         if (strlen($val) > 0){
-                            $parsed = str_replace('"', "", $this->getPlaceIdByAddress($val." ".$decoded["city"]." ".$decoded["country"]));
+                            $parsed = str_replace('"', "", $this->getStreet($val, $decoded["city"], $decoded["country"]));
 
                             if ($parsed != null && $parsed != $client->city){
                                 $client->street = json_encode([$parsed]);
@@ -1082,6 +1082,21 @@ class BuilderTmp{
         }
         
         return $latlng;
+    }
+    
+    private function getStreet($street, $city, $country){
+        $result = null;
+        $c = 0;
+        
+        if (isset($street) && isset($city) && isset($country)){
+            while ($result == null && $c < 10){
+                $result = $this->getPlaceIdByAddress($street." ".$city." ".$country);
+                $c++;
+                usleep(100000);
+            }
+        }
+        
+        return $result;
     }
     
     public function getAddressTranslation($address){
