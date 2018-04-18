@@ -1089,7 +1089,7 @@ class BuilderTmp{
         $street_parsed = preg_replace("/[~`!@#$%^&*_+=№;:,.]/", "", $street);
         $c = 0;
         
-        if (isset($street_parsed) && isset($city) && isset($country)){
+        if (strlen($street_parsed) > 0 && isset($city) && isset($country)){
             while ($result == null && $c < 10){
                 $result = $this->getPlaceIdByAddress($street_parsed." ".$city." ".$country);
                 $c++;
