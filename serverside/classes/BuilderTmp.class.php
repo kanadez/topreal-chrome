@@ -1086,11 +1086,12 @@ class BuilderTmp{
     
     private function getStreet($street, $city, $country){
         $result = null;
+        $street_parsed = preg_replace("/[~`!@#$%^&*_+=№;:,.]/", "", $street);
         $c = 0;
         
-        if (isset($street) && isset($city) && isset($country)){
+        if (isset($street_parsed) && isset($city) && isset($country)){
             while ($result == null && $c < 10){
-                $result = $this->getPlaceIdByAddress($street." ".$city." ".$country);
+                $result = $this->getPlaceIdByAddress($street_parsed." ".$city." ".$country);
                 $c++;
                 usleep(100000);
             }
