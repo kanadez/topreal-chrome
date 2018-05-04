@@ -1109,28 +1109,54 @@ class BuilderTmp{
     
     protected function getPlaceIdByAddress($address){
         global $googleac;
-    
-        $query = DB::createQuery()->select('placeid')->where('short_name LIKE ? OR long_name LIKE ?'); 
-        $places = $googleac->getList($query, [$address, $address]);
+        
+        //Log::i("getPlaceIdByAddress", $address);
+        $query = DB::createQuery()->select('id, placeid')->where('localized_name = ?'); 
+        $places = $googleac->getList($query, [$address]);
 
         if (count($places) > 0){
+            $googleac_used = $googleac->load($places[0]->id);
+            $googleac_used->used += 1;
+            $googleac_used->save();
+            
             return json_encode($places[0]->placeid);
         }
-        
-        $jsonUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($address) . "&key=AIzaSyB9Wn9uRK8mlCHzA20yrPJzJzTVsz3mws0";
+        else{
+            $jsonUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($address) . "&key=AIzaSyB9Wn9uRK8mlCHzA20yrPJzJzTVsz3mws0";
 
-        $geocurl = curl_init();
-        curl_setopt($geocurl, CURLOPT_URL, $jsonUrl);
-        curl_setopt($geocurl, CURLOPT_HEADER,0); //Change this to a 1 to return headers
-        curl_setopt($geocurl, CURLOPT_USERAGENT, $_SERVER["HTTP_USER_AGENT"]);
-        curl_setopt($geocurl, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($geocurl, CURLOPT_RETURNTRANSFER, 1);
+            $geocurl = curl_init();
+            curl_setopt($geocurl, CURLOPT_URL, $jsonUrl);
+            curl_setopt($geocurl, CURLOPT_HEADER,0); //Change this to a 1 to return headers
+            curl_setopt($geocurl, CURLOPT_USERAGENT, $_SERVER["HTTP_USER_AGENT"]);
+            curl_setopt($geocurl, CURLOPT_FOLLOWLOCATION, 1);
+            curl_setopt($geocurl, CURLOPT_RETURNTRANSFER, 1);
 
-        $geofile = curl_exec($geocurl);
-        curl_close($geofile);
-        $decoded = json_decode($geofile, true);
-
-        return json_encode($decoded["results"][0]["place_id"]);
+            $geofile = curl_exec($geocurl);
+            curl_close($geofile);
+            $decoded = json_decode($geofile, true);
+            
+            $result = $decoded["results"][0];
+            $short_name = isset($result["address_components"][0]["short_name"]) ? $result["address_components"][0]["short_name"] : "";
+            $long_name = isset($result["formatted_address"]) ? $result["formatted_address"] : "";
+            $placeid = json_encode($result["place_id"]);
+            $placeid_notencoded = $result["place_id"];
+            $lat = $result["geometry"]["location"]["lat"];
+            $lng = $result["geometry"]["location"]["lng"];
+            
+            $googleac_new = $googleac->create([
+                "short_name" => $short_name,
+                "long_name" => $long_name,
+                "localized_name" => $address,
+                "lat" => $lat,
+                "lng" => $lng,
+                "placeid" => $placeid_notencoded,
+                "locale" => "en",
+                "timestamp" => time()
+            ]);
+            $googleac_new->save();
+            
+            return $placeid;
+        }
     }
     
     protected function getLatLngByAddress($address){
