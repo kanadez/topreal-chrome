@@ -250,8 +250,9 @@ class BuilderTmp{
 
                 //############### проверяем есть ли карточка с таким номером тел. и ценой в стоке или агентстве ############### //
                 $ascription = $decoded["ascription"] == "sale" ? 0 : 1;
-                $city = str_replace('"', "", $this->getPlaceIdByAddress($decoded["city"]." ".$decoded["country"]));
-                $city_text = Geo::getFullAddress($city);
+                $geocoded = $this->getPlaceIdByAddress($decoded["city"]." ".$decoded["country"]);
+                $city = str_replace('"', "", $geocoded["placeid"]);
+                $city_text = $geocoded["address"];
                 $phone_exploded = $utils->explodePhone($decoded["contact1"]);
                 $query = DB::createQuery()
                         ->select('id, last_updated, price, street_text, house_number, flat_number, floor_from, rooms_count, home_size, floors_count, currency_id, external_id, external_id_hex, external_id_winwin')
@@ -309,11 +310,12 @@ class BuilderTmp{
                         }
                     break;
                     case "country":
-                        $parsed = str_replace('"', "", $this->getPlaceIdByAddress($val));
+                        $geocoded_country = $this->getPlaceIdByAddress($val);
+                        $parsed = str_replace('"', "", $geocoded_country["placeid"]);
 
                         if ($parsed != null && $parsed != "null"){
                             $property->country = $parsed;
-                            $property->country_text = Geo::getFullAddress($property->country);
+                            $property->country_text = $geocoded_country["address"];
                         }
                         else{
                             $property->remarks_text .= " ".$key.": ".$val.", ";
@@ -324,11 +326,12 @@ class BuilderTmp{
                         if (strlen($val) === 0)
                             $error++;
                         else{ 
-                            $parsed = str_replace('"', "", $this->getPlaceIdByAddress($val." ".$decoded["country"]));
+                            $geocoded_city = $this->getPlaceIdByAddress($val." ".$decoded["country"]);
+                            $parsed = str_replace('"', "", $geocoded_city["placeid"]);
 
                             if ($parsed != null && $parsed != "null"){
                                 $property->city = $parsed;
-                                $property->city_text = Geo::getFullAddress($property->city);
+                                $property->city_text = $geocoded_city["address"];
                             }
                             else{
                                 $property->remarks_text .= " ".$key.": ".$val.", ";
@@ -338,11 +341,12 @@ class BuilderTmp{
                     break;
                     case "neighborhood":
                         if (strlen($val) > 0){
-                            $parsed = str_replace('"', "", $this->getPlaceIdByAddress($val." ".$decoded["city"]." ".$decoded["country"]));
+                            $geocoded_hood = $this->getPlaceIdByAddress($val." ".$decoded["city"]." ".$decoded["country"]);
+                            $parsed = str_replace('"', "", $geocoded_hood["placeid"]);
 
                             if ($parsed != null && $parsed != "null"){
                                 $property->neighborhood = $parsed;
-                                $property->neighborhood_text = Geo::getFullAddress($property->neighborhood);
+                                $property->neighborhood_text = $geocoded_hood["address"];
                                 $googleac->ajaxAddShort($parsed);
                             }
                             else{
@@ -353,7 +357,8 @@ class BuilderTmp{
                     break;
                     case "street":
                         if (strlen($val) > 0){
-                            $parsed = str_replace('"', "", $this->getStreet($val, $decoded["city"], $decoded["country"]));
+                            $geocoded_street = $this->getStreet($val, $decoded["city"], $decoded["country"]);
+                            $parsed = str_replace('"', "", $geocoded_street["placeid"]);
 
                             if ($parsed != null && $parsed != "null" && $parsed != $property->city){
                                 $property->street = $parsed;
@@ -361,7 +366,7 @@ class BuilderTmp{
                                 $latlng = $this->getLocation($property->street, $decoded["house_number"], $decoded["statuses"]);
                                 $property->lat = $latlng["lat"];
                                 $property->lng = $latlng["lng"];
-                                $property->street_text = Geo::getFullAddress($property->street);
+                                $property->street_text = $geocoded_street["address"];
                                 $googleac->ajaxAddShort($parsed);
                             }
                             else{
@@ -670,6 +675,8 @@ class BuilderTmp{
     }
     
     public function createClient($json_data){
+        return false; // создание клиента нужно переделывать и тестировать, поэтому отлкючил, т.к. винвин не используем
+        
         global $client_form_data, $currency, $agency;
         $decoded = json_decode($json_data, true);
         $user = $_SESSION["user"];
@@ -1104,14 +1111,14 @@ class BuilderTmp{
         $geo = new Geo;
         
         $parsed = $geo->getPlaceIdByAddress($address);
-        return Geo::getFullAddress($parsed);
+        return Geo::getFullAddress($parsed["placeid"]);
     }
     
     protected function getPlaceIdByAddress($address){
         global $googleac;
         
         //Log::i("getPlaceIdByAddress", $address);
-        $query = DB::createQuery()->select('id, placeid')->where('localized_name = ?'); 
+        $query = DB::createQuery()->select('id, placeid, long_name')->where('localized_name = ?'); 
         $places = $googleac->getList($query, [$address]);
 
         if (count($places) > 0){
@@ -1119,7 +1126,10 @@ class BuilderTmp{
             $googleac_used->used += 1;
             $googleac_used->save();
             
-            return json_encode($places[0]->placeid);
+            //$tmp = json_encode(["placeid" => $places[0]->placeid, "address" => $places[0]->long_name]);
+            //Log::i("getPlaceIdByAddress() from DB", $tmp);
+            
+            return ["placeid" => json_encode($places[0]->placeid), "address" => $places[0]->long_name];
         }
         else{
             $jsonUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($address) . "&key=AIzaSyB9Wn9uRK8mlCHzA20yrPJzJzTVsz3mws0";
@@ -1136,26 +1146,36 @@ class BuilderTmp{
             $decoded = json_decode($geofile, true);
             
             $result = $decoded["results"][0];
-            $short_name = isset($result["address_components"][0]["short_name"]) ? $result["address_components"][0]["short_name"] : "";
-            $long_name = isset($result["formatted_address"]) ? $result["formatted_address"] : "";
+            $short_name = $result["address_components"][0]["short_name"];
+            $long_name = $result["formatted_address"];
             $placeid = json_encode($result["place_id"]);
             $placeid_notencoded = $result["place_id"];
             $lat = $result["geometry"]["location"]["lat"];
             $lng = $result["geometry"]["location"]["lng"];
             
-            $googleac_new = $googleac->create([
-                "short_name" => $short_name,
-                "long_name" => $long_name,
-                "localized_name" => $address,
-                "lat" => $lat,
-                "lng" => $lng,
-                "placeid" => $placeid_notencoded,
-                "locale" => "en",
-                "timestamp" => time()
-            ]);
-            $googleac_new->save();
+            if (isset($placeid_notencoded)){
+                $googleac_new = $googleac->create([
+                    "short_name" => $short_name,
+                    "long_name" => $long_name,
+                    "localized_name" => $address,
+                    "lat" => $lat,
+                    "lng" => $lng,
+                    "placeid" => $placeid_notencoded,
+                    "locale" => "en",
+                    "timestamp" => time()
+                ]);
+                $googleac_new->save();
+            }
             
-            return $placeid;
+            //$tmp = json_encode(["placeid" => $placeid, "address" => $long_name]);
+            //Log::i("getPlaceIdByAddress() from Google", $tmp);
+            
+            if (isset($placeid)){
+                return ["placeid" => $placeid, "address" => $long_name];
+            }
+            else{
+                return null;
+            }
         }
     }
     
