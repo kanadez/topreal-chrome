@@ -198,7 +198,7 @@ function startExtension(){
         
         $('#user_message_span').html('<span style="font-size:1.5em; width:100%; display:block;" locale="select_property_from_list">Выберите недвижимость из списка</span><br><span locale="it_ll_open_in_new_tab">Она откроется в новой вкладке</span>');
         $('#try_collector_button').hide();
-        $('#not_actual_property_button').show();
+        //$('#not_actual_property_button').show();
         
         $.post(host+"/api/buildertmp/getstatforagent.json", {}, function (response){
             if (response != -1){
@@ -211,12 +211,12 @@ function startExtension(){
             }
         });
         
-        if ($('.no_ads_title').length > 0 && $('.main_table').length > 0){
-            $.post(host+"/api/buildertmp/removeexternal.json", {
+        if ($('.no_ads_title').length > 0 && $('.main_table').length > 0){ 
+            /*$.post(host+"/api/buildertmp/removeexternal.json", { // удаление несуществующей недвиж.
                 external_id: getUrlParameter("topreal_external_property")
             }, function (response){
                 chrome.runtime.sendMessage({action: "close_current_tab"});
-            });
+            });*/
         }
     }
     
@@ -261,11 +261,11 @@ function startExtension(){
     });
     
     $('#not_actual_property_button').click(function(){
-        $.post(host+"/api/buildertmp/removeexternal.json", {
+        /*$.post(host+"/api/buildertmp/removeexternal.json", { // удаление несуществующей недвиж.
             external_id: getUrlParameter("topreal_external_property")
         }, function (response){
             chrome.runtime.sendMessage({action: "close_current_tab"});
-        });
+        });*/
     });
     
     $('#create_new_card_anyway_button').click(function(){

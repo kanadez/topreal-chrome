@@ -590,11 +590,11 @@ function Yad2(){
             });
             
             if ($('.boohoo').length == 0 && $('.main_table').length > 0){
-                $.post(host+"/api/buildertmp/removeexternal.json", {
+                /*$.post(host+"/api/buildertmp/removeexternal.json", { // удаление несуществующей недвиж.
                     external_id: getUrlParameter("topreal_external_property")
                 }, function (response){
                     chrome.runtime.sendMessage({action: "close_current_tab"});
-                });
+                });*/
             }
         }
     };
