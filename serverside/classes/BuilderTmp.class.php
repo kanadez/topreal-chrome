@@ -224,13 +224,16 @@ class BuilderTmp{
         try{// здесь нужно будет все параметры сделать динамичными :
             if ($check_existing == 1){
                 //############### проверяем есть ли такая карточка в стоке или агентстве ############### //
-                $query = DB::createQuery()->select('id, last_updated, price, street_text, house_number, flat_number, floor_from, currency_id')->where('external_id_'.$suffix.' = ? AND (agency = ? OR stock = 1) AND temporary = 0 AND deleted = 0'); 
+                $query = DB::createQuery()->select('id, last_updated, timestamp, price, street_text, house_number, flat_number, floor_from, currency_id')->where('external_id_'.$suffix.' = ? AND (agency = ? OR stock = 1) AND temporary = 0 AND deleted = 0'); 
                 $properties = Property::getList($query, [intval($decoded['external_id_'.$suffix]), $agency->getId()]);
 
                 if (count($properties) > 0){
+                    $data_lu = $properties[0]->last_updated;
+                    $data_t = $properties[0]->timestamp;
+                    
                     $message = [
                         "message" => "card_already_exist", 
-                        "date" => $properties[0]->last_updated,
+                        "date" => $data_lu != null && $data_lu != 0 ? $data_lu : $data_t,
                         "price" => $decoded["price"].' '.$currency->getSymbolCode($properties[0]->currency_id),
                         "address" => $properties[0]->street_text,
                         "house_flat" => $properties[0]->house_number."/".$properties[0]->flat_number,
@@ -255,7 +258,7 @@ class BuilderTmp{
                 $city_text = $geocoded["address"];
                 $phone_exploded = $utils->explodePhone($decoded["contact1"]);
                 $query = DB::createQuery()
-                        ->select('id, last_updated, price, street_text, house_number, flat_number, floor_from, rooms_count, home_size, floors_count, currency_id, external_id, external_id_hex, external_id_winwin')
+                        ->select('id, last_updated, timestamp, price, street_text, house_number, flat_number, floor_from, rooms_count, home_size, floors_count, currency_id, external_id, external_id_hex, external_id_winwin')
                         ->where('(city = ? OR city_text = ?) AND ascription = ? AND (contact1 REGEXP ? OR contact2 REGEXP ? OR contact3 REGEXP ? OR contact4 REGEXP ?) AND stock = 1 AND temporary = 0 AND deleted = 0'); 
                 $properties = Property::getList($query, [$city, $city_text, $ascription, $phone_exploded, $phone_exploded, $phone_exploded, $phone_exploded]);
 
@@ -263,8 +266,11 @@ class BuilderTmp{
                     $cards_data = [];
 
                     for ($i = 0; $i < count($properties); $i++){
+                        $data_lu = $properties[$i]->last_updated;
+                        $data_t = $properties[$i]->timestamp;
+                        
                         $card_data = [
-                            "date" => $properties[$i]->last_updated,
+                            "date" => $data_lu != null && $data_lu != 0 ? $data_lu : $data_t,
                             "price" => $properties[$i]->price.' '.$currency->getSymbolCode($properties[$i]->currency_id),
                             "address" => $properties[$i]->street_text,
                             "house_flat" => $properties[$i]->house_number."/".$properties[$i]->flat_number,
