@@ -46,8 +46,8 @@ function Collector(){
             if (response.error != undefined){
                 if (response.error.code == 405){
                     var obj = JSON.parse(response.error.description);
-                    //console.log(obj);
-                    $('#existing_card_collect_date_span').html(utils.convertTimestampToDate(obj.date));
+                    var date_converted = obj.date != 0 && obj.date != null ? utils.convertTimestampToDate(obj.date) : "-";
+                    $('#existing_card_collect_date_span').html(date_converted);
                     $('#existing_card_price_span').html(utils.numberWithCommas(obj.price));
                     $('#existing_card_collect_address_span').html(obj.address);
                     $('#existing_card_collect_house_flat_span').html(obj.house_flat);
@@ -217,8 +217,8 @@ function Collector(){
             if (response.error != undefined){
                 if (response.error.code == 405){
                     var obj = JSON.parse(response.error.description);
-                    console.log(obj);
-                    $('#existing_card_collect_date_span').html(utils.convertTimestampToDate(obj.date));
+                    var date_converted = obj.date != 0 && obj.date != null ? utils.convertTimestampToDate(obj.date) : "-";
+                    $('#existing_card_collect_date_span').html(date_converted);
                     $('#existing_card_price_span').html(utils.numberWithCommas(obj.price));
                     $('#open_existing_card_button').click({topreal_id: obj.card_id}, function(e){
                         chrome.runtime.sendMessage({action: "open_yad2_newad", url: host+"/property?id="+e.data.topreal_id});
