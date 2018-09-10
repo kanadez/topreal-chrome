@@ -1148,6 +1148,11 @@ class BuilderTmp{
             curl_setopt($geocurl, CURLOPT_RETURNTRANSFER, 1);
 
             $geofile = curl_exec($geocurl);
+            
+            /* logging maps */
+            Log::i("BuilderTmp.class.php, getPlaceIdByAddress(), geocode", $address);
+            /****************/
+            
             curl_close($geofile);
             $decoded = json_decode($geofile, true);
             
@@ -1205,6 +1210,11 @@ class BuilderTmp{
         curl_setopt($geocurl, CURLOPT_RETURNTRANSFER, 1);
 
         $geofile = curl_exec($geocurl);
+        
+        /* logging maps */
+        Log::i("BuilderTmp.class.php, getLatLngByAddress(), geocode", $address);
+        /****************/
+        
         curl_close($geofile);
         $decoded = json_decode($geofile, true);
 
