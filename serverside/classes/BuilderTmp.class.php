@@ -3,6 +3,8 @@
 use Database\TinyMVCDatabase as DB;
 
 class BuilderTmp{ 
+    const MAX_GEO_ATTEMTS = 3;
+    
     public function removeExternalProperty($external_id){
         $ep = PropertyExternal::load(intval($external_id));
         $ep->deleted = 1;
@@ -368,6 +370,9 @@ class BuilderTmp{
 
                             if ($parsed != null && $parsed != "null" && $parsed != $property->city){
                                 $property->street = $parsed;
+                                /* logging maps */
+                                //Log::i("BuilderTmp.class.php", "street");
+                                /****************/
                                 //$latlng = Geo::getTrueLocation($property->street, $decoded["house_number"], $decoded["statuses"]);
                                 $latlng = $this->getLocation($property->street, $decoded["house_number"], $decoded["statuses"]);
                                 $property->lat = $latlng["lat"];
@@ -1083,7 +1088,9 @@ class BuilderTmp{
         $c = 0;
         
         if ($street != NULL){
-            while ($latlng == null && $c < 10){
+            while ($latlng == null && $c < self::MAX_GEO_ATTEMTS){
+                //Log::i("BuilderTmp.class.php, getLocation(), MAX_GEO_ATTEMTS", $c);
+                //Log::i("BuilderTmp.class.php, next is getTrueLocation()");
                 $latlng = Geo::getTrueLocation($street, $house_number, $statuses);
                 $c++;
                 usleep(100000);
@@ -1099,11 +1106,12 @@ class BuilderTmp{
     
     private function getStreet($street, $city, $country){
         $result = null;
-        $street_parsed = preg_replace("/[~`!@#$%^&*_+=№;:,.]/", "", $street);
+        $street_parsed = preg_replace("/[~`!@#$%^&*_+=№;:,.Ѡɗ֗֗ڗؗWӗȠ]җǗݗʠ/", "", $street);
         $c = 0;
         
         if (strlen($street_parsed) > 0 && isset($city) && isset($country)){
-            while ($result == null && $c < 10){
+            while ($result == null && $c < self::MAX_GEO_ATTEMTS){
+                //Log::i("BuilderTmp.class.php, getStreet(), MAX_GEO_ATTEMTS", $c);
                 $result = $this->getPlaceIdByAddress($street_parsed." ".$city." ".$country);
                 $c++;
                 usleep(100000);
@@ -1135,10 +1143,19 @@ class BuilderTmp{
             //$tmp = json_encode(["placeid" => $places[0]->placeid, "address" => $places[0]->long_name]);
             //Log::i("getPlaceIdByAddress() from DB", $tmp);
             
+            /* logging maps */
+            //Log::i("BuilderTmp.class.php, getPlaceIdByAddress(), geocode GOOGLEAC", $address);
+            //Log::i("BuilderTmp.class.php, getPlaceIdByAddress(), geocode GOOGLEAC", $places[0]->long_name);
+            /****************/
+            
             return ["placeid" => json_encode($places[0]->placeid), "address" => $places[0]->long_name];
         }
         else{
-            $jsonUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($address) . "&key=AIzaSyB9Wn9uRK8mlCHzA20yrPJzJzTVsz3mws0";
+            $api_key = GoogleApiKey::getOldestKey();
+            /* logging maps */
+            //Log::i("BuilderTmp.class.php, api_key", $api_key);
+            /****************/
+            $jsonUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($address) . "&key=".$api_key;
 
             $geocurl = curl_init();
             curl_setopt($geocurl, CURLOPT_URL, $jsonUrl);
@@ -1150,14 +1167,29 @@ class BuilderTmp{
             $geofile = curl_exec($geocurl);
             
             /* logging maps */
-            Log::i("BuilderTmp.class.php, getPlaceIdByAddress(), geocode", $address);
+            //Log::i("BuilderTmp.class.php, getPlaceIdByAddress(), geocode RESPONSE", $address);
             /****************/
             
             curl_close($geofile);
             $decoded = json_decode($geofile, true);
             
             $result = $decoded["results"][0];
-            $short_name = $result["address_components"][0]["short_name"];
+            $address_components = $result["address_components"];
+            $short_name = $address_components[0]["short_name"];
+            
+            foreach ($address_components as $component) {
+                if ($component["types"][0] == "route"){
+                    $short_name = $component["short_name"];
+                }
+            }
+            
+            foreach ($address_components as $component) {
+                if ($component["types"][0] == "street_number"){
+                    $short_name .= " ".$component["short_name"];
+                }
+            }
+            
+            //$short_name = $result["address_components"][0]["short_name"];
             $long_name = $result["formatted_address"];
             $placeid = json_encode($result["place_id"]);
             $placeid_notencoded = $result["place_id"];
@@ -1181,6 +1213,11 @@ class BuilderTmp{
             //$tmp = json_encode(["placeid" => $placeid, "address" => $long_name]);
             //Log::i("getPlaceIdByAddress() from Google", $tmp);
             
+            /* logging maps */
+            //Log::i("BuilderTmp.class.php, getPlaceIdByAddress(), geocode ADDRESS", $long_name);
+            //Log::i("BuilderTmp.class.php, getPlaceIdByAddress(), geocode RESULT", $geofile);
+            /****************/
+            
             if (isset($placeid)){
                 return ["placeid" => $placeid, "address" => $long_name];
             }
@@ -1190,6 +1227,26 @@ class BuilderTmp{
         }
     }
     
+    protected function clearNonUTF8($string){
+        $regex = 
+<<<'END'
+/
+  (
+    (?: [\x00-\x7F]                 # single-byte sequences   0xxxxxxx
+    |   [\xC0-\xDF][\x80-\xBF]      # double-byte sequences   110xxxxx 10xxxxxx
+    |   [\xE0-\xEF][\x80-\xBF]{2}   # triple-byte sequences   1110xxxx 10xxxxxx * 2
+    |   [\xF0-\xF7][\x80-\xBF]{3}   # quadruple-byte sequence 11110xxx 10xxxxxx * 3 
+    ){1,100}                        # ...one or more times
+  )
+| .                                 # anything else
+/x
+END;
+        $replaced = preg_replace($regex, '$1', $string);
+        
+        return $replaced;
+    }
+
+
     protected function getLatLngByAddress($address){
         global $googleac;
     
@@ -1200,7 +1257,11 @@ class BuilderTmp{
             return ["lat" => $places[0]->lat, "lng" => $places[0]->lng];
         }
         
-        $jsonUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($address) . "&key=AIzaSyB9Wn9uRK8mlCHzA20yrPJzJzTVsz3mws0";
+        $api_key = GoogleApiKey::getOldestKey();
+        /* logging maps */
+        //Log::i("BuilderTmp.class.php, api_key", $api_key);
+        /****************/
+        $jsonUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($address) . "&key=".$api_key;
 
         $geocurl = curl_init();
         curl_setopt($geocurl, CURLOPT_URL, $jsonUrl);
@@ -1212,7 +1273,7 @@ class BuilderTmp{
         $geofile = curl_exec($geocurl);
         
         /* logging maps */
-        Log::i("BuilderTmp.class.php, getLatLngByAddress(), geocode", $address);
+        //Log::i("BuilderTmp.class.php, getLatLngByAddress(), geocode", $address);
         /****************/
         
         curl_close($geofile);
