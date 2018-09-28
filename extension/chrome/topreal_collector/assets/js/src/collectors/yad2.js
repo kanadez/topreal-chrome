@@ -2,8 +2,19 @@ function Yad2(){
     this.values_for_compare = null;
     
     this.onAdsPage = function(){
-        if (location.origin === "http://www.yad2.co.il" && (location.pathname === "/Nadlan/salesDetails.php" || location.pathname === "/Nadlan/rentDetails.php" || location.pathname === "/Nadlan/businessDetails.php")){
+        if (
+                location.origin === "http://www.yad2.co.il" && 
+                (
+                    location.pathname === "/Nadlan/salesDetails.php" || 
+                    location.pathname === "/Nadlan/rentDetails.php" || 
+                    location.pathname === "/Nadlan/businessDetails.php" ||
+                    location.pathname === "/Nadlan/sales_info.php" ||
+                    location.pathname === "/Nadlan/rent_info.php" ||
+                    location.pathname === "/Nadlan/business_info.php"
+                )
+        ){
             chrome.runtime.sendMessage({action: "remove_yad2_cookies"});
+            
             return true;
         }
         else{
@@ -12,7 +23,14 @@ function Yad2(){
     };
     
     this.onCatalogPage = function(){
-        if (location.origin === "http://www.yad2.co.il" && (location.pathname === "/Nadlan/sales.php" || location.pathname === "/Nadlan/rent.php" || location.pathname === "/Nadlan/business.php")){
+        if (
+                location.origin === "http://www.yad2.co.il" && 
+                (
+                    location.pathname === "/Nadlan/sales.php" || 
+                    location.pathname === "/Nadlan/rent.php" || 
+                    location.pathname === "/Nadlan/business.php"
+                )
+        ){
             return true;
         }
         else{
@@ -21,7 +39,14 @@ function Yad2(){
     };
     
     this.notOnAdsPage = function(){
-        if (location.pathname !== "/Nadlan/salesDetails.php" && location.pathname !== "/Nadlan/rentDetails.php" && location.pathname !== "/Nadlan/businessDetails.php"){
+        if (
+                location.pathname !== "/Nadlan/salesDetails.php" && 
+                location.pathname !== "/Nadlan/rentDetails.php" && 
+                location.pathname !== "/Nadlan/businessDetails.php" &&
+                location.pathname !== "/Nadlan/sales_info.php" &&
+                location.pathname !== "/Nadlan/rent_info.php" &&
+                location.pathname !== "/Nadlan/business_info.php"
+        ){
             return true;
         }
         else{
@@ -754,6 +779,7 @@ function Yad2(){
     this.getStreetTranslation = function(){
         var frameElem = $(document).children().html();
         var street = this.TryParseFrameValue(frameElem, "כתובת:");
+        var street_without_house_number = street.replace(/\d+/g, "");
         var city = this.TryParseFrameValue(frameElem, "ישוב:");
         var country = "ישראל";
         
@@ -764,7 +790,7 @@ function Yad2(){
         });
         
         $.post(host+"/api/buildertmp/getaddressbytext.json", {
-            address: street.replace(/\d+/g, "")+" "+city+" "+country
+            address: street_without_house_number+" "+city+" "+country
         }, function (response){
             var address = response;
             var updated = false;

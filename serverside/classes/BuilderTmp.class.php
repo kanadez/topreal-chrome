@@ -1124,8 +1124,9 @@ class BuilderTmp{
     public function getAddressTranslation($address){
         $geo = new Geo;
         
-        $parsed = $geo->getPlaceIdByAddress($address);
-        return Geo::getFullAddress($parsed["placeid"]);
+        $placeid = $geo->getPlaceIdByAddress($address);
+        
+        return Geo::getFullAddress($placeid);
     }
     
     protected function getPlaceIdByAddress($address){

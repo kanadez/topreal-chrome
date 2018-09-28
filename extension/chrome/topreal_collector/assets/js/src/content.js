@@ -42,11 +42,14 @@ function toggleExtension(){
     else{
         $.post(host+"/api/buildertmp/checksession.json", {}, function (response){
             if (response == true){
-                chrome.runtime.sendMessage({action: "check_was_opened"}, function(response){
-                    if (!response){
-                        startExtension();
-                    }
-                });
+                startExtension();
+                
+                // старый код, создавался для пользования маклерами. Пока не нужен.
+                //chrome.runtime.sendMessage({action: "check_was_opened"}, function(response){
+                //    if (!response){
+                        //startExtension();
+                //    }
+                //});
             }
         });
     }
@@ -226,7 +229,7 @@ function startExtension(){
             ev.stopPropagation();
         }
         else{
-            collector.current.parseCatalogClick(ev.target);
+            //collector.current.parseCatalogClick(ev.target);
         }
     };
     
