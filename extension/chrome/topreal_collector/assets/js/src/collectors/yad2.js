@@ -130,7 +130,7 @@ function Yad2(){
             value = "cottage";
         }
         else if (utils.stringContains(value, "דו משפחתי")){
-            value = "house";
+            value = "two_family_house";
         }
         else if (utils.stringContains(value, "יחידת דיור")){
             value = "other";
@@ -158,7 +158,7 @@ function Yad2(){
             value = "land";
         }
         else if (utils.stringContains(value, "בניין מגורים")){
-            value = "house";
+            value = "building";
             values["remarks_text"] += "סוג הנכס: "+"בניין מגורים"+"\n";
         }
         else if (utils.stringContains(value, "קב' רכישה/ זכות לנכס")){
